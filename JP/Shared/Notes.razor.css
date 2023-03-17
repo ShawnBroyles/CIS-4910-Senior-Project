@@ -1,0 +1,109 @@
+.header {
+    background-color: #f7f7f7;
+    font-size: 60px;
+    position: fixed;
+    top: 160px;
+    border-bottom: 0;
+}
+
+.new-note {
+    margin: auto;
+    background-color: #ff940040;
+    height: 70px;
+    display: flex;
+    width: 200px;
+    position: fixed;
+    border: 1px solid;
+    top: 220px;
+    right: 270px;
+    border: 1px solid;
+    border-color: black;
+    padding-block: 5px;
+    justify-content: center;
+}
+
+.new-note-text {
+    color: black;
+    font-size: 30px;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    user-select: none;
+    white-space: nowrap;
+}
+
+.new-note:hover {
+    opacity: 80%;
+    transition: opacity .3s ease-in-out;
+    -moz-transition: opacity .3s ease-in-out;
+    -webkit-transition: opacity .3s ease-in-out;
+}
+
+.delete-note {
+    margin: auto;
+    background-color: #ff940040;
+    height: 70px;
+    display: flex;
+    width: 200px;
+    position: fixed;
+    border: 1px solid;
+    top: 310px;
+    right: 270px;
+    border: 1px solid;
+    border-color: black;
+    padding-block: 5px;
+    justify-content: center;
+}
+
+.delete-note-text {
+    font-size: 10px;
+    color: black;
+    font-size: 30px;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    user-select: none;
+    white-space: nowrap;
+}
+
+.delete-note:hover {
+    opacity: 80%;
+    transition: opacity .3s ease-in-out;
+    -moz-transition: opacity .3s ease-in-out;
+    -webkit-transition: opacity .3s ease-in-out;
+}
+
+table {
+    position: fixed;
+    top: 220px;
+}
+
+table, th, td {
+    border: 1px solid;
+    width: 60%;
+}
+
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    font-size: 20px;
+    background-color: #03173e;
+    color: white;
+    font-weight: 300;
+}
+
+tr:nth-child(even) {
+    background-color: #d8d8d8;
+}
+
+td, th {
+    border: 1px solid black;
+    padding: 3px;
+    padding-inline-start: 20px;
+    padding-inline-end: 20px;
+}
