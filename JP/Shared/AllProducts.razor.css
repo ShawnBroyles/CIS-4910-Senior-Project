@@ -1,19 +1,22 @@
 .header {
     background-color: #f7f7f7;
-    font-size: 60px;
+    font-size: 250%;
     position: fixed;
-    top: 160px;
+    top: 22%;
+    left: 10%;
     border-bottom: 0;
+    user-select: none;
 }
 
 table {
     position: fixed;
-    top: 220px;
+    top: 30%;
+    left: 10%
 }
 
 table, th, td {
     border: 1px solid;
-    width: 70%;
+    width: 79%;
 }
 
 th {
@@ -40,10 +43,10 @@ td, th {
 form {
     background-color: #f6f7fa;
     position: fixed;
-    top: 160px;
-    right: 300px;
-    width: 500px;
-    height: 44px;
+    top: 21%;
+    right: 11%;
+    width: 30%;
+    height: 6.3%;
     border: 1px solid;
     border-radius: 50px;
     border-color: #808080;
