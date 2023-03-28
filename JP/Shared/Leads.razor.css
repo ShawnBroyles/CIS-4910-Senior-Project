@@ -1,4 +1,4 @@
-.header {
+﻿.header {
     background-color: #f7f7f7;
     font-size: 60px;
     border-bottom: 0;
@@ -82,7 +82,7 @@ input {
     padding: 6px 10px;
 }
 
-.new-note {
+.new-lead {
     float: right;
     margin-right: auto;
     right: 100px;
@@ -99,7 +99,7 @@ input {
     justify-content: center;
 }
 
-.new-note-text {
+.new-lead-text {
     font-size: 10px;
     color: white;
     font-size: 24px;
@@ -112,14 +112,14 @@ input {
     white-space: nowrap;
 }
 
-.new-note:hover {
+.new-lead:hover {
     opacity: 60%;
     transition: opacity .3s ease-in-out;
     -moz-transition: opacity .3s ease-in-out;
     -webkit-transition: opacity .3s ease-in-out;
 }
 
-.edit-note {
+.edit-lead {
     margin: auto;
     background-color: #052767;
     height: 40px;
@@ -133,7 +133,7 @@ input {
     justify-content: center;
 }
 
-.edit-note-text {
+.edit-lead-text {
     font-size: 10px;
     color: white;
     font-size: 24px;
@@ -146,28 +146,28 @@ input {
     white-space: nowrap;
 }
 
-.edit-note:hover {
+.edit-lead:hover {
     opacity: 60%;
     transition: opacity .3s ease-in-out;
     -moz-transition: opacity .3s ease-in-out;
     -webkit-transition: opacity .3s ease-in-out;
 }
 
-.delete-note {
+.delete-lead {
     margin: auto;
     background-color: red;
     height: 40px;
     display: flex;
     width: 140px;
     border: 1px solid;
-    position:sticky;
+    position: sticky;
     border: 1px solid;
     border-color: black;
     padding-block: 5px;
     justify-content: center;
 }
 
-.delete-note-text {
+.delete-lead-text {
     font-size: 10px;
     color: white;
     font-size: 24px;
@@ -180,7 +180,7 @@ input {
     white-space: nowrap;
 }
 
-.delete-note:hover {
+.delete-lead:hover {
     opacity: 60%;
     transition: opacity .3s ease-in-out;
     -moz-transition: opacity .3s ease-in-out;

@@ -5,7 +5,39 @@
 <PageTitle>Retail</PageTitle>
 
 <main>
-    <div class="header">
-        <h1>Retail</h1>
+    <div class ="content">
+        <div class="header">
+            <h1>Retail Products</h1>
+        </div>
+        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 85px">
+            <div>
+                <form class="form-inline">
+                    <div class="form-group col-md-6" style="float:right">
+                        <input type="search" id="query" name="q" placeholder="Search...">
+                    </div>
+                </form>
+            </div>
+            <table class ="table table-sm table-bordered">
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Pricing</th>
+                    <th>Date Created</th>
+                    <th>Description</th>
+                </tr>
+                @foreach (product prod in database.GetProducts(2))
+                {
+                            <tr>
+                                <td>@prod.id</td>
+                                <td>@prod.name</td>
+                                <td>@prod.categoryName</td>
+                                <td>@prod.price</td>
+                                <td>@prod.date</td>
+                                <td>@prod.description</td>
+                            </tr>
+                }
+            </table>
+        </div>
     </div>
 </main>

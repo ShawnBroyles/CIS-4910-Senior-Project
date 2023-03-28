@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/index"
 
 <PageTitle>Index</PageTitle>
 
@@ -9,15 +9,15 @@
             <h2 class="card-title text-center">My Meetings</h2>
             <dl>
                 <hr>
-                <dt class="text-center">9:00 AM: Ma and Pa Ice Cream</dt>
-                <br>
-                <dt class="text-center">10:30 AM: Jerry's Pastries</dt>
-                <br>
-                <dt class="text-center">12:00 PM: Scalaras University</dt>
-                <br>
-                <dt class="text-center">1:00 PM: Ben and Ben Construction</dt>
-                <br>
-                <dt class="text-center">2:30 AM: Beth amd Co Beauty</dt>
+                @foreach (meeting meetings in database.GetMeetings())
+                {
+                    <dt>
+                        <td>@meetings.time</td>
+                        <td>@meetings.company</td>
+                        <td>@meetings.clientName</td>
+                    </dt>
+                    <br>
+                }
             </dl>
         </div>
     </div>
@@ -27,15 +27,11 @@
             <h2 class="card-title text-center">My Tasks</h2>
             <dl>
                 <hr>
-                <dt class="text-center">Weekly Sales Report</dt>
-                <br>
-                <dt class="text-center">Sales Presentation</dt>
-                <br>
-                <br>
-                <br>
-                <br>
-                <br>
-                <br>
+                @foreach (task task in database.GetTasks())
+                {
+                    <dt>@task.name</dt>
+                    <br>
+                }
             </dl>
         </div>
     </div>

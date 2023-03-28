@@ -1,0 +1,67 @@
+﻿@inherits LayoutComponentBase
+
+@page "/leads"
+
+<PageTitle>Potential Leads</PageTitle>
+
+
+<main>
+    <div class ="content">
+        <div class="header">
+            <h1>Potential Leads</h1>
+        </div>
+        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 85px;"
+            <div>
+                <br />
+                <div class="new-lead mx-auto">
+                    <div class="new-lead-text">New Lead</div>
+                </div>
+                <br />
+                <br />
+                <br />
+                <form class="form-inline">
+                    <div class="form-group col-md-6" style="float:right">
+                        <input type="search" id="query" name="q" placeholder="Search...">
+                    </div>
+                </form>
+            </div>
+            <table class ="table table-sm table-bordered">
+                <tr>
+                    <th>ID</th>
+                    <th>Company</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Employee</th>
+                    <th>Category</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                @foreach (client lead in database.GetLeads())
+                {
+                        <tr>
+                            <td>@lead.id</td>
+                            <td>@lead.companyID</td>
+                            <td>@lead.firstName</td>
+                            <td>@lead.lastName</td>
+                            <td>@lead.email</td>
+                            <td>@lead.phoneNumber</td>
+                            <td>@lead.employeeID</td>
+                            <td>@lead.categoryID</td>
+                            <td>
+                                <div class="edit-lead mx-auto">
+                                    <div class="edit-lead-text">Edit Lead</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="delete-lead mx-auto">
+                                    <div class="delete-lead-text">Delete Lead</div>
+                                </div>
+                            </td>
+                        </tr>
+                }
+            </table>
+        </div>
+    </div>
+</main>

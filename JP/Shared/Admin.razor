@@ -1,20 +1,19 @@
 ﻿@inherits LayoutComponentBase
 
-@page "/notes"
+@page "/Admin"
 
-<PageTitle>Notes</PageTitle>
-
+<PageTitle>Admin</PageTitle>
 
 <main>
     <div class="content">
         <div class="header">
-            <h1>Notes</h1>
+            <h1>Users</h1>
         </div>
         <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 85px;"
             <div>
                 <br />
-                <div class="new-note mx-auto">
-                    <div class="new-note-text">New Note</div>
+                <div class="new-user mx-auto">
+                    <div class="new-user-text">New User</div>
                 </div>
                 <br />
                 <br />
@@ -27,26 +26,26 @@
             </div>
             <table class="table table-sm table-bordered">
                 <tr>
-                    <th>Name & Date</th>
-                    <th>Content</th>
-                    <th>Category ID</th>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Password</th>
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
-                @foreach (note note in database.GetNotes())
+                @foreach (account acc in database.GetAccounts())
                 {
                     <tr>
-                        <td>@note.name</td>
-                        <td>@note.contents</td>
-                        <td>@note.categoryID</td>
+                        <td>@acc.id</td>
+                        <td>@acc.username</td>
+                        <td>@acc.password</td>
                         <td>
-                            <div class="edit-note mx-auto">
-                                <div class="edit-note-text">Edit Note</div>
+                            <div class="edit-user mx-auto">
+                                <div class="edit-user-text">Edit User</div>
                             </div>
                         </td>
                         <td>
-                            <div class="delete-note mx-auto">
-                                <div class="delete-note-text">Delete Note</div>
+                            <div class="delete-user mx-auto">
+                                <div class="delete-user-text">Delete User</div>
                             </div>
                         </td>
                     </tr>

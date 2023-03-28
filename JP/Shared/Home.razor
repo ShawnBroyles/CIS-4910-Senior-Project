@@ -1,0 +1,48 @@
+﻿@inherits LayoutComponentBase
+
+@page "/"
+
+<PageTitle>Welcome</PageTitle>
+
+<main>
+    <div class ="content">
+        <div class="header">
+            <h1>Welcome</h1>
+            <br />
+        </div>
+   
+        <div>
+            <br />
+            <br />
+            <br />
+            <div class="card w-30" style="float:left; position:relative; margin-left:5%">
+                <div class="card-body">
+                    <h2 class="card-title text-center">My Meetings</h2>
+                    <dl>
+                        <hr>
+                        @foreach (meeting meetings in database.GetMeetings())
+                        {
+                            <dt>@meetings.time @meetings.company @meetings.clientName</dt>
+                            <br>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card w-25" style="float:left; position:relative; margin-left:5%">
+                <div class="card-body">
+                    <h2 class="card-title text-center">My Tasks</h2>
+                    <dl>
+                        <hr>
+                        @foreach (task task in database.GetTasks())
+                        {
+                            <dt>@task.name</dt>
+                            <br>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>

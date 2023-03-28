@@ -1,0 +1,67 @@
+﻿@inherits LayoutComponentBase
+
+@page "/clients"
+
+<PageTitle>Clients</PageTitle>
+
+
+<main>
+    <div class ="content">
+        <div class="header">
+            <h1>Clients</h1>
+        </div>
+        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 85px;"
+            <div>
+                <br />
+                <div class="new-client mx-auto">
+                    <div class="new-client-text">New Client</div>
+                </div>
+                <br />
+                <br />
+                <br />
+                <form class="form-inline">
+                    <div class="form-group col-md-6" style="float:right">
+                        <input type="search" id="query" name="q" placeholder="Search...">
+                    </div>
+                </form>
+            </div>
+            <table class ="table table-sm table-bordered">
+                <tr>
+                    <th>ID</th>
+                    <th>Company</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Employee</th>
+                    <th>Category</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                @foreach (client clt in database.GetClients())
+                {
+                    <tr>
+                        <td>@clt.id</td>
+                        <td>@clt.companyID</td>
+                        <td>@clt.firstName</td>
+                        <td>@clt.lastName</td>
+                        <td>@clt.email</td>
+                        <td>@clt.phoneNumber</td>
+                        <td>@clt.employeeID</td>
+                        <td>@clt.categoryID</td>
+                        <td>
+                            <div class="edit-client mx-auto">
+                                <div class="edit-client-text">Edit</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="delete-client mx-auto">
+                                <div class="delete-client-text">X</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</main>

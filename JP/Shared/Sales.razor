@@ -1,0 +1,58 @@
+﻿@inherits LayoutComponentBase
+
+@page "/sales"
+
+<PageTitle>Sales</PageTitle>
+
+
+<main>
+    <div class ="content">
+        <div class="header">
+            <h1>Sales</h1>
+        </div>
+        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 85px">
+            <div>
+                <form class="form-inline">
+                    <div class="form-group col-md-6" style="float:right">
+                        <input type="search" id="query" name="q" placeholder="Search...">
+                    </div>
+                </form>
+            </div>
+            <table class ="table table-sm table-bordered">
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Employee</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                </tr>
+                <tr>
+                    @foreach (product prod in database.GetProducts()){
+                    <td>@prod.id</td>break;}
+                    @foreach (product prod in database.GetProducts()){
+                    <td>@prod.date</td>break;}
+                    @foreach (client client in database.GetClients()){
+                    <td>@client.firstName @client.lastName</td>break;}
+                    @foreach (employee emp in database.GetEmployees()){
+                    <td>@emp.firstName @emp.lastName</td>break;}
+                    @foreach (product prod in database.GetProducts()){
+                    <td>@prod.name</td>break;}
+                    @foreach (product prod in database.GetProducts()){
+                    <td>@prod.categoryName</td>break;}
+                </tr>
+                @foreach (sale sale in database.GetSales())
+                {
+                    <tr>
+                        <td>@sale.id</td>
+                        <td>@sale.date</td>
+                        <td>@sale.clientID</td>
+                        <td>@sale.employeeID</td>
+                        <td>@sale.productID</td>
+                        <td>@sale.categoryID</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</main>
