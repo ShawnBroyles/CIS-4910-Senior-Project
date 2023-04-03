@@ -17,7 +17,7 @@
             <div>
                 <form class="form-inline">
                     <div class="form-group col-md-6" style="float:right">
-                        <input type="search" id="query" name="q" placeholder="Search...">
+                        <input type="search" id="query" name="q" asp-for="searchTerm" placeholder="Search...">
                     </div>
                 </form>
             </div>
@@ -46,13 +46,17 @@
                         <td>@clt.employeeID</td>
                         <td>@clt.categoryID</td>
                         <td>
-                            <div class="edit-client mx-auto">
-                                <div class="edit-client-text">Edit</div>
+                            <div class="edit-client">Edit
+                                <form id="edit" method="post" asp-page-handler="Edit">
+                                    <button type="submit" name="edit-client" value="@clt.id"></button>
+                                </form>
                             </div>
                         </td>
                         <td>
-                            <div class="delete-client mx-auto">
-                                <div class="delete-client-text">X</div>
+                            <div class="delete-client">Delete
+                                <form id="delete" method="post" asp-page-handler="Delete">
+                                    <button type="submit" name="delete-client" value="@clt.id"></button>
+                                </form>
                             </div>
                         </td>
                     </tr>

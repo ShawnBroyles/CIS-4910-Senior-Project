@@ -126,19 +126,9 @@ input {
     border-color: black;
     padding-block: 5px;
     justify-content: center;
-}
-
-.edit-client-text {
     font-size: 10px;
     color: white;
-    font-size: 24px;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     user-select: none;
-    white-space: nowrap;
 }
 
 .edit-client:hover {
@@ -160,12 +150,14 @@ input {
     border-color: black;
     padding-block: 5px;
     justify-content: center;
-}
-
-.delete-client-text {
     font-size: 10px;
     color: white;
-    font-size: 24px;
+    user-select: none;
+}
+/*
+.button {
+    font-size: 10px;
+    color: white;
     text-align: center;
     position: absolute;
     top: 50%;
@@ -174,6 +166,7 @@ input {
     user-select: none;
     white-space: nowrap;
 }
+*/
 
 .delete-client:hover {
     opacity: 60%;
@@ -181,3 +174,4 @@ input {
     -moz-transition: opacity .3s ease-in-out;
     -webkit-transition: opacity .3s ease-in-out;
 }
+
