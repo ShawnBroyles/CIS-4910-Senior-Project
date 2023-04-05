@@ -7,6 +7,7 @@ using static Azure.Core.HttpHeader;
 
 namespace JP.Shared
 {
+
     public class employee
     {
         public int id { get; set; }
@@ -203,6 +204,10 @@ namespace JP.Shared
             categoryID = _categoryID;
         }
     }
+    public class SearchModel
+    {
+        public string searchTerm { get; set; }
+    }
 
     public class database
     {
@@ -249,7 +254,7 @@ namespace JP.Shared
             return employees;
         }
 
-        public static List<product> GetProducts(int category = 0) // Optional parameter is set to 0 by default
+        public static List<product> GetProducts(int category = 0, string searchTerm = "") // Optional parameter is set to 0 by default
         {
             List<product> products = new List<product>();
             try
@@ -258,6 +263,12 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT * FROM product";
+                    if (searchTerm != "")
+                    {
+                        query = "SELECT * FROM product WHERE ProductDescription LIKE \'%" + searchTerm + "%\' OR ProductName LIKE  \'%" + searchTerm + "%\' OR " +
+                                                            "ProductID LIKE \'%" + searchTerm + "%' OR ProductPrice LIKE \'%" + searchTerm + "%\' OR " +
+                                                            "CreateDate LIKE \'%" + searchTerm + "%\';";
+                    }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -396,7 +407,7 @@ namespace JP.Shared
             return GetClients(6); // 6 is the employee ID foreign key for the leads
         }
 
-        public static List<client> GetClients(int employeeID = 0) // Default value of 0 to receive all clients (non-leads) in the system
+        public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
         {
             List<client> clients = new List<client>();
             try
@@ -405,6 +416,13 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT * FROM client;";
+                    if (searchTerm != "")
+                    {
+                        query = "SELECT * FROM client WHERE ClientID LIKE \'%" + searchTerm + "%\' OR Email LIKE  \'%" + searchTerm + "%\' OR " +
+                                                            "fName LIKE \'%" + searchTerm + "%' OR Lname LIKE \'%" + searchTerm + "%\' OR " +
+                                                            "PhoneNum LIKE \'%" + searchTerm + "%\' OR EmpID LIKE \'%" + searchTerm + "%\' OR " +
+                                                            "CatagoryID LIKE \'%" + searchTerm + "%\';";
+                    }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -506,7 +524,7 @@ namespace JP.Shared
             return sales;
         }
 
-        public static List<note> GetNotes(int employeeID = 0) // Specify the employeeID parameter to receive notes from a specific employee
+        public static List<note> GetNotes(int employeeID = 0, string searchTerm = "") // Specify the employeeID parameter to receive notes from a specific employee
         {
             List<note> notes = new List<note>();
             try
@@ -515,6 +533,10 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT * FROM notes;";
+                    if (searchTerm != "")
+                    {
+                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm + "%\' OR Contents LIKE  \'%" + searchTerm + "%\';";
+                    }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {

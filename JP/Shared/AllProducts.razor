@@ -1,6 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using JP.Shared
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/products/all-products"
+
 
 <PageTitle>All Products</PageTitle>
 
@@ -26,8 +29,12 @@
                     <th>Date Created</th>
                     <th>Description</th>
                 </tr>
-                @foreach (product prod in database.GetProducts(0))
-                {
+                
+                @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";                
+                    foreach (product prod in database.GetProducts(0, searchTerm))
+                    {
                     <tr>
                         <td>@prod.id</td>
                         <td>@prod.name</td>
@@ -36,7 +43,8 @@
                         <td>@prod.date</td>
                         <td>@prod.description</td>
                     </tr>
-                }
+                    }
+                   }
             </table>
         </div>
     </div>

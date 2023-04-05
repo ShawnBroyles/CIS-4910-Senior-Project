@@ -1,9 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using JP.Shared
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/notes"
 
 <PageTitle>Notes</PageTitle>
-
 
 <main>
     <div class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
@@ -29,8 +30,11 @@
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
-                @foreach (note note in database.GetNotes())
-                {
+                 @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
+                    foreach (note note in database.GetNotes(0, searchTerm))
+                    {
                     <tr>
                         <td>@note.name</td>
                         <td>@note.contents</td>
@@ -52,6 +56,7 @@
                             </div>
                         </td>
                     </tr>
+                    }
                 }
             </table>
         </div>

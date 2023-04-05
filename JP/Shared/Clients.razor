@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using JP.Shared
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/clients"
 
@@ -34,8 +36,11 @@
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
-                @foreach (client clt in database.GetClients())
-                {
+                 @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
+                    foreach (client clt in database.GetClients(0, searchTerm))
+                    {
                     <tr>
                         <td>@clt.id</td>
                         <td>@clt.companyID</td>
@@ -60,6 +65,7 @@
                             </div>
                         </td>
                     </tr>
+                    }
                 }
             </table>
         </div>
