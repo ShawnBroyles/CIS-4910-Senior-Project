@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Windows.Input;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -419,9 +420,9 @@ namespace JP.Shared
                     if (searchTerm != "")
                     {
                         query = "SELECT * FROM client WHERE ClientID LIKE \'%" + searchTerm + "%\' OR Email LIKE  \'%" + searchTerm + "%\' OR " +
-                                                            "fName LIKE \'%" + searchTerm + "%' OR Lname LIKE \'%" + searchTerm + "%\' OR " +
+                                                            "fName LIKE \'%" + searchTerm + "%' OR lName LIKE \'%" + searchTerm + "%\' OR " +
                                                             "PhoneNum LIKE \'%" + searchTerm + "%\' OR EmpID LIKE \'%" + searchTerm + "%\' OR " +
-                                                            "CatagoryID LIKE \'%" + searchTerm + "%\';";
+                                                            "CompanyID LIKE \'%" + searchTerm + "%\' OR CatagoryID LIKE \'%" + searchTerm + "%\';";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -454,6 +455,34 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return clients;
+        }
+
+        // Function to delete client using the clientID as input
+        public static void DeleteClient(int clientID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "DELETE FROM notes WHERE ClientID=@clientID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
         }
 
         public static List<meeting> GetMeetings()
@@ -535,7 +564,8 @@ namespace JP.Shared
                     var query = "SELECT * FROM notes;";
                     if (searchTerm != "")
                     {
-                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm + "%\' OR Contents LIKE  \'%" + searchTerm + "%\';";
+                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm + "%\' OR Contents LIKE  \'%" + searchTerm + "%\'" +
+                                                           " OR CatagoryID LIKE \'%" + searchTerm + "%\';";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -564,6 +594,34 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return notes;
+        }
+
+        // Function to delete note using the noteID as input
+        public static void DeleteNote(int noteID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "DELETE FROM notes WHERE NoteID=@noteID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@noteID", noteID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
         }
 
         public static List<task> GetTasks()

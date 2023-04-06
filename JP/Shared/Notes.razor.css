@@ -131,12 +131,12 @@ input {
     user-select: none;
 }
 
-.edit-note:hover {
-    opacity: 60%;
-    transition: opacity .3s ease-in-out;
-    -moz-transition: opacity .3s ease-in-out;
-    -webkit-transition: opacity .3s ease-in-out;
-}
+    .edit-note:hover {
+        opacity: 60%;
+        transition: opacity .3s ease-in-out;
+        -moz-transition: opacity .3s ease-in-out;
+        -webkit-transition: opacity .3s ease-in-out;
+    }
 
 .delete-note {
     margin: auto;
@@ -155,9 +155,9 @@ input {
     user-select: none;
 }
 
-.delete-note:hover {
-    opacity: 60%;
-    transition: opacity .3s ease-in-out;
-    -moz-transition: opacity .3s ease-in-out;
-    -webkit-transition: opacity .3s ease-in-out;
-}
+    .delete-note:hover {
+        opacity: 60%;
+        transition: opacity .3s ease-in-out;
+        -moz-transition: opacity .3s ease-in-out;
+        -webkit-transition: opacity .3s ease-in-out;
+    }
