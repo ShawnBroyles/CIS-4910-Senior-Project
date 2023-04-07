@@ -13,15 +13,24 @@
     </RadzenCard>
 </div>
 
-<br/>
+<br />
 <p>@msg</p>
 @code {
-    string userName = "admin";
-    string password = "password";
     string msg;
 
     void OnLogin(LoginArgs args, string name)
     {
-        msg = name + " Username:" + args.Username + " password:" + args.Password;
+        Tuple<bool, string> username = database.inputSanitization(args.Username);
+        Tuple<bool, string> password = database.inputSanitization(args.Password);
+
+        if (username.Item1 && password.Item1 && database.GetUser(username.Item2, password.Item2))
+        {
+            // login & set something to his or her login info (browser cookie? Microsoft Identity?)
+            msg = "Welcome, " + username.Item2 + "!";
+        }
+        else
+        {
+            msg = "Invalid login credentials. Please contact a database administrator if you need a new account made.";
+        }
     }
 }
