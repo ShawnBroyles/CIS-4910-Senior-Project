@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Microsoft.AspNetCore.Mvc;
@@ -438,13 +439,13 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM client;";
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
                     if (searchTerm != "")
                     {
-                        query = "SELECT * FROM client WHERE ClientID LIKE \'%" + searchTerm + "%\' OR Email LIKE  \'%" + searchTerm + "%\' OR " +
-                                                            "fName LIKE \'%" + searchTerm + "%' OR lName LIKE \'%" + searchTerm + "%\' OR " +
-                                                            "PhoneNum LIKE \'%" + searchTerm + "%\' OR EmpID LIKE \'%" + searchTerm + "%\' OR " +
-                                                            "CompanyID LIKE \'%" + searchTerm + "%\' OR CatagoryID LIKE \'%" + searchTerm + "%\';";
+                        query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+                                                           "client.fName LIKE '%" + searchTerm + "%' OR client.lName LIKE '%" + searchTerm + "%' OR " +
+                                                            "client.PhoneNum LIKE '%" + searchTerm + "%' OR client.EmpID LIKE '%" + searchTerm + "%' OR " +
+                                                            "client.CompanyID LIKE '%" + searchTerm + "%' OR client.CatagoryID LIKE '%" + searchTerm + "%';";
                     }
                     // var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
 
