@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using JP.Shared
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/clients"
 
@@ -17,7 +19,7 @@
             <div>
                 <form class="form-inline">
                     <div class="form-group col-md-6" style="float:right">
-                        <input type="search" id="query" name="q" placeholder="Search...">
+                        <input type="search" id="query" name="q" asp-for="searchTerm" placeholder="Search...">
                     </div>
                 </form>
             </div>
@@ -32,8 +34,11 @@
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
-                @foreach (client clt in database.GetClients())
-                {
+                 @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
+                    foreach (client clt in database.GetClients(0, searchTerm))
+                    {
                     <tr>
                         <td>@clt.companyID</td>
                         <td>@clt.firstName</td>
@@ -42,16 +47,21 @@
                         <td>@clt.phoneNumber</td>
                         <td>@clt.categoryID</td>
                         <td>
-                            <div class="edit-client mx-auto">
-                                <div class="edit-client-text">Edit</div>
+                            <div class="edit-client">Edit
+                                <form id="edit" method="post" asp-page-handler="Edit">
+                                    <button type="submit" name="edit-client" value="@clt.id"></button>
+                                </form>
                             </div>
                         </td>
                         <td>
-                            <div class="delete-client mx-auto">
-                                <div class="delete-client-text">X</div>
+                            <div class="delete-client">Delete
+                                <form id="delete" method="post" asp-page-handler="Delete">
+                                    <button type="submit" name="delete-client" value="@clt.id"></button>
+                                </form>
                             </div>
                         </td>
                     </tr>
+                    }
                 }
             </table>
         </div>
