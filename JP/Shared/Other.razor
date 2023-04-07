@@ -31,7 +31,7 @@
                 @{
                     string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
                     string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";                
-                    foreach (product prod in database.GetProducts(5, searchTerm))
+                    foreach (product prod in database.GetProducts(7, searchTerm))
                     {
                     <tr>
                         <td>@prod.id</td>
@@ -42,7 +42,7 @@
                         <td>@prod.description</td>
                     </tr>
                     }
-                   }
+                }
             </table>
         </div>
     </div>

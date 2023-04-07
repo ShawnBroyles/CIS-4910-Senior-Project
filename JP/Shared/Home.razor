@@ -42,6 +42,20 @@
                     </dl>
                 </div>
             </div>
+
+            <div class="card w-35" style="float:left; position:relative; margin-left:5%">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Sales Feed</h2>
+                    <dl>
+                        <hr>
+                        @foreach (sale sale in database.GetSales())
+                        {
+                            <dt>@sale.date @sale.employeeID @sale.clientID @sale.productID</dt>
+                            <br>
+                        }
+                    </dl>
+                </div>
+            </div>
         </div>
     </div>
 

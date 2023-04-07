@@ -25,16 +25,15 @@
             </div>
             <table class ="table table-sm table-bordered">
                 <tr>
-                    <th>ID</th>
                     <th>Company</th>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
-                    <th>Employee</th>
                     <th>Category</th>
+                    <th>Recommended Products</th>
                     <th>Edit</th>
-                    <th>Delete</th>
+                    
                 </tr>
                 @{
                     string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
@@ -42,14 +41,18 @@
                     foreach (client lead in database.GetLeads())
                     {
                         <tr>
-                            <td>@lead.id</td>
                             <td>@lead.companyID</td>
                             <td>@lead.firstName</td>
                             <td>@lead.lastName</td>
                             <td>@lead.email</td>
                             <td>@lead.phoneNumber</td>
-                            <td>@lead.employeeID</td>
                             <td>@lead.categoryID</td>
+                            <td>
+                                @foreach (recommended prod in database.GetRecommendeds(lead.categoryID))
+                                {
+                                    @prod.productname <br />
+                                }
+                            </td>
                             <td>
                                 <div class="edit-lead">Edit
                                     <form id="edit" method="post" asp-page-handler="Edit">
@@ -57,16 +60,9 @@
                                     </form>
                                 </div>
                             </td>
-                            <td>
-                                <div class="delete-lead">Delete
-                                    <form id="delete" method="post" asp-page-handler="Delete">
-                                        <button type="submit" name="delete-lead" value="@lead.id"></button>
-                                    </form>
-                                </div>
-                            </td>
                         </tr>
                     }
-                    }
+                }
             </table>
         </div>
     </div>

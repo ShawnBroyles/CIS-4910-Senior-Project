@@ -99,12 +99,12 @@ namespace JP.Shared
         public string email { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
-        public int companyID { get; set; }
+        public string companyID { get; set; }
         public decimal phoneNumber { get; set; }
         public int employeeID { get; set; }
-        public int categoryID { get; set; }
+        public string categoryID { get; set; }
 
-        public client(int _id, string _email, string _firstName, string _lastName, int _companyID, decimal _phoneNumber, int _employeeID, int _categoryID)
+        public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID)
         {
             id = _id;
             email = _email;
@@ -210,15 +210,37 @@ namespace JP.Shared
         public string searchTerm { get; set; }
     }
 
+    public class recommended
+    {
+        public string productname { get; set; }
+        public recommended(string _productname)
+        {
+            productname = _productname;
+        }
+    }
+
     public class database
     {
         // Input sanitization to prevent SQL injection
         // Example usage:   Tuple<bool, string> data = inputSanitization("Hello World.");
         //                  if (data.Item1) { string myData = data.Item2; } else { /* Ouput error message */ }
-        public Tuple<bool, string> inputSanitization(string input)
+        public static Tuple<bool, string> inputSanitization(string input)
         {
             // Only accepting input that is alphanumeric with spaces, underscores, periods, and new lines
             return Tuple.Create(Regex.Match(input, "^[a-zA-Z0-9\\s\\n_.]+$").Success, input);
+        }
+
+        public static account GetUser(string username, string password)
+        {
+            List<account> accounts = GetAccounts();
+            foreach (account acc in accounts)
+            {
+                if (acc.username == username && acc.password == password)
+                {
+                    return acc;
+                }
+            }
+            return null;
         }
 
         public static List<employee> GetEmployees()
@@ -424,6 +446,7 @@ namespace JP.Shared
                                                             "PhoneNum LIKE \'%" + searchTerm + "%\' OR EmpID LIKE \'%" + searchTerm + "%\' OR " +
                                                             "CompanyID LIKE \'%" + searchTerm + "%\' OR CatagoryID LIKE \'%" + searchTerm + "%\';";
                     }
+                    // var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -433,7 +456,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Client ID, Email, First Name, Last Name, Company ID, Phone Number, Employee ID, Category ID
-                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetInt32(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetInt32(7)));
+                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7)));
                             }
                         }
                     }
@@ -691,5 +714,40 @@ namespace JP.Shared
             Console.ReadLine();
             return deals;
         }
+
+        public static List<recommended> GetRecommendeds(string catname)
+        {
+            List<recommended> recommendeds = new List<recommended>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT product.ProductName FROM Product INNER JOIN sale ON Product.ProductID = sale.ProductID INNER JOIN client ON client.clientid = sale.clientid INNER JOIN Catagory ON Catagory.CatagoryID = Client.CatagoryID WHERE Catagory.CatagoryName LIKE @Category;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        command.Parameters.AddWithValue("@Category", "%" + catname + "%");
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                recommendeds.Add(new recommended(reader.GetString(0)));
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return recommendeds;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return recommendeds;
+        }
+
     }
 }
