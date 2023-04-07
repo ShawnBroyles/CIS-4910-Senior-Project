@@ -216,10 +216,23 @@ namespace JP.Shared
         // Input sanitization to prevent SQL injection
         // Example usage:   Tuple<bool, string> data = inputSanitization("Hello World.");
         //                  if (data.Item1) { string myData = data.Item2; } else { /* Ouput error message */ }
-        public Tuple<bool, string> inputSanitization(string input)
+        public static Tuple<bool, string> inputSanitization(string input)
         {
             // Only accepting input that is alphanumeric with spaces, underscores, periods, and new lines
             return Tuple.Create(Regex.Match(input, "^[a-zA-Z0-9\\s\\n_.]+$").Success, input);
+        }
+
+        public static account GetUser(string username, string password)
+        {
+            List<account> accounts = GetAccounts();
+            foreach (account acc in accounts)
+            {
+                if (acc.username == username && acc.password == password)
+                {
+                    return acc;
+                }
+            }
+            return null;
         }
 
         public static List<employee> GetEmployees()

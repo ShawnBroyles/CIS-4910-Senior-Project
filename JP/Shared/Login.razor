@@ -13,15 +13,30 @@
     </RadzenCard>
 </div>
 
-<br/>
+<br />
 <p>@msg</p>
+@inject IJSRuntime JsRuntime;
 @code {
-    string userName = "admin";
-    string password = "password";
-    string msg;
+    string msg = "";
 
-    void OnLogin(LoginArgs args, string name)
+    async protected void OnLogin(LoginArgs args, string name)
     {
-        msg = name + " Username:" + args.Username + " password:" + args.Password;
+        Tuple<bool, string> username = database.inputSanitization(args.Username);
+        Tuple<bool, string> password = database.inputSanitization(args.Password);
+        if (username.Item1 && password.Item1)
+        {
+            account acc = database.GetUser(username.Item2, password.Item2);
+
+            if (acc != null)
+            {
+                // Write to browser cookie for the logged-in user
+                await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUser", acc.id, DateTime.Now.AddMinutes(1));
+                msg = "Welcome, " + acc.username + "!";
+            }
+            else
+            {
+                msg = "Invalid login credentials. Please contact a database administrator if you need a new account made.";
+            }
+        }
     }
 }
