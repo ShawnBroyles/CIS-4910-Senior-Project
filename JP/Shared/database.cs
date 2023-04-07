@@ -95,12 +95,12 @@ namespace JP.Shared
         public string email { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
-        public int companyID { get; set; }
+        public string companyID { get; set; }
         public decimal phoneNumber { get; set; }
         public int employeeID { get; set; }
-        public int categoryID { get; set; }
+        public string categoryID { get; set; }
 
-        public client(int _id, string _email, string _firstName, string _lastName, int _companyID, decimal _phoneNumber, int _employeeID, int _categoryID)
+        public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID)
         {
             id = _id;
             email = _email;
@@ -199,6 +199,15 @@ namespace JP.Shared
             employeeID = _employeeID;
             productID = _productID;
             categoryID = _categoryID;
+        }
+    }
+
+    public class recommended
+    {
+        public string productname { get; set; }
+        public recommended(string _productname)
+        {
+            productname = _productname;
         }
     }
 
@@ -402,7 +411,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM client;";
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -412,7 +421,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Client ID, Email, First Name, Last Name, Company ID, Phone Number, Employee ID, Category ID
-                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetInt32(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetInt32(7)));
+                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7)));
                             }
                         }
                     }
@@ -609,5 +618,40 @@ namespace JP.Shared
             Console.ReadLine();
             return deals;
         }
+
+        public static List<recommended> GetRecommendeds(string catname)
+        {
+            List<recommended> recommendeds = new List<recommended>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT product.ProductName FROM Product INNER JOIN sale ON Product.ProductID = sale.ProductID INNER JOIN client ON client.clientid = sale.clientid INNER JOIN Catagory ON Catagory.CatagoryID = Client.CatagoryID WHERE Catagory.CatagoryName LIKE @Category;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        command.Parameters.AddWithValue("@Category", "%" + catname + "%");
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                recommendeds.Add(new recommended(reader.GetString(0)));
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return recommendeds;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return recommendeds;
+        }
+
     }
 }

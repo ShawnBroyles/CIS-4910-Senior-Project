@@ -23,13 +23,11 @@
             </div>
             <table class ="table table-sm table-bordered">
                 <tr>
-                    <th>ID</th>
                     <th>Company</th>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
-                    <th>Employee</th>
                     <th>Category</th>
                     <th>Edit</th>
                     <th>Delete</th>
@@ -37,13 +35,11 @@
                 @foreach (client clt in database.GetClients())
                 {
                     <tr>
-                        <td>@clt.id</td>
                         <td>@clt.companyID</td>
                         <td>@clt.firstName</td>
                         <td>@clt.lastName</td>
                         <td>@clt.email</td>
                         <td>@clt.phoneNumber</td>
-                        <td>@clt.employeeID</td>
                         <td>@clt.categoryID</td>
                         <td>
                             <div class="edit-client mx-auto">
