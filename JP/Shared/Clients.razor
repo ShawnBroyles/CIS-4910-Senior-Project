@@ -56,7 +56,7 @@
                         <td>
                             <div class="delete-client">Delete
                                 <form id="delete" method="post" asp-page-handler="Delete">
-                                    <button type="submit" name="delete-client" value="@clt.id"></button>
+                                        <button @onclick="@(() => DeleteClient(clt.id))"></button>
                                 </form>
                             </div>
                         </td>
@@ -67,3 +67,10 @@
         </div>
     </div>
 </main>
+
+@functions{
+    private async Task DeleteClient(int id)
+    {
+        database.DeleteClient(id);
+    }
+}

@@ -619,6 +619,34 @@ namespace JP.Shared
             return notes;
         }
 
+        // Function to create note
+        public static void CreateNote(int noteID, int EmpID, string NoteName, string Contents)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "INSERT INTO Notes() VALUES ();";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@noteID", noteID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
         // Function to delete note using the noteID as input
         public static void DeleteNote(int noteID)
         {
@@ -648,14 +676,14 @@ namespace JP.Shared
         }
 
         // Function to edit note using the noteID as input
-        public static void EditNote(int noteID, int EmpID, string NoteName, string Contents)
+        public static void EditNote(int noteID, int EmpID, string NoteName, string Contents, int CatagoryID)
         {
             try
             {
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "UPDATE Notes SET EmpID=@EmpID, NoteName=@NoteName, Contents=@Contents WHERE NoteID=@noteID;";
+                    var query = "UPDATE Notes SET EmpID=@EmpID, NoteName=@NoteName, Contents=@Contents, CatagoryID=@CatagoryID WHERE NoteID=@noteID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -663,6 +691,7 @@ namespace JP.Shared
                         command.Parameters.AddWithValue("@EmpID", EmpID);
                         command.Parameters.AddWithValue("@NoteName", NoteName);
                         command.Parameters.AddWithValue("@Contents", Contents);
+                        command.Parameters.AddWithValue("@CatagoryID", CatagoryID);
                         connection.Open();
                         command.ExecuteNonQuery();
                     }

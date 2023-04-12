@@ -8,7 +8,9 @@
 
 <main>
     <div class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
-        <div class="new-note-text">New Note</div>
+        <div class="new-note-text">New Note
+            <!----<button @onclick="@(() => CreateNote())"></button>--->
+        </div>
     </div>
     <div class="content">
         <div class="header" style="left: -10%">
@@ -51,7 +53,7 @@
                             <div class="delete-note">
                                 Delete
                                 <form id="delete" method="post" asp-page-handler="Delete">
-                                    <button type="submit" name="delete-note" value="@note.id" OnClick="DeleteNote(@note.id)"></button>
+                                    <button @onclick="@(() => DeleteNote(note.id))"></button>
                                 </form>
                             </div>
                         </td>
@@ -63,9 +65,13 @@
     </div>
 </main>
 
-@{
-    void DeleteNote(int id)
+@functions{
+    private async Task DeleteNote(int id)
     {
         database.DeleteNote(id);
+    }
+
+    private async Task CreateNote()
+    {
     }
 }
