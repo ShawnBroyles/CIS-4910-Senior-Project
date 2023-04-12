@@ -488,7 +488,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "DELETE FROM notes WHERE ClientID=@clientID;";
+                    var query = "UPDATE Client SET EmpID = 0 WHERE ClientID=@clientID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -627,11 +627,42 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "DELETE FROM notes WHERE NoteID=@noteID;";
+                    var query = "DELETE FROM Notes WHERE NoteID=@noteID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@noteID", noteID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+        // Function to edit note using the noteID as input
+        public static void EditNote(int noteID, int EmpID, string NoteName, string Contents)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "UPDATE Notes SET EmpID=@EmpID, NoteName=@NoteName, Contents=@Contents WHERE NoteID=@noteID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@noteID", noteID);
+                        command.Parameters.AddWithValue("@EmpID", EmpID);
+                        command.Parameters.AddWithValue("@NoteName", NoteName);
+                        command.Parameters.AddWithValue("@Contents", Contents);
                         connection.Open();
                         command.ExecuteNonQuery();
                     }

@@ -43,7 +43,7 @@
                             <div class="edit-note">
                                 Edit
                                 <form id="edit" method="post" asp-page-handler="Edit">
-                                    <button type="submit" name="edit-note" value="@note.id" OnClick="EditNote"></button>
+                                    <button type="submit" name="edit-note" value="@note.id" OnClick="EditNote()"></button>
                                 </form>
                             </div>
                         </td>
@@ -51,7 +51,7 @@
                             <div class="delete-note">
                                 Delete
                                 <form id="delete" method="post" asp-page-handler="Delete">
-                                    <button type="submit" name="delete-note" value="@note.id" OnClick="DeleteNote"></button>
+                                    <button type="submit" name="delete-note" value="@note.id" OnClick="DeleteNote(@note.id)"></button>
                                 </form>
                             </div>
                         </td>
@@ -62,3 +62,10 @@
         </div>
     </div>
 </main>
+
+@{
+    void DeleteNote(int id)
+    {
+        database.DeleteNote(id);
+    }
+}
