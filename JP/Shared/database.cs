@@ -205,10 +205,6 @@ namespace JP.Shared
             categoryID = _categoryID;
         }
     }
-    public class SearchModel
-    {
-        public string searchTerm { get; set; }
-    }
 
     public class recommended
     {
@@ -542,7 +538,7 @@ namespace JP.Shared
             return meetings;
         }
 
-        public static List<sale> GetSales()
+        public static List<sale> GetSales(string searchTerm = "")
         {
             List<sale> sales = new List<sale>();
             try
@@ -551,6 +547,13 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT * FROM sale;";
+                    if (searchTerm != "")
+                    {
+                       query = "SELECT * FROM sale WHERE SaleDate LIKE \'%" + searchTerm + "%\';";
+                    //                                      " OR EmployeeName LIKE  \'%" + searchTerm + "%\'" +
+                    //                                      " OR Date LIKE \'%" + searchTerm + "%\' OR CatagoryName LIKE \'%" + searchTerm + "%\';" +
+                    //                                      " OR ProductName LIKE \'%" + searchTerm + "%\';
+                    }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
