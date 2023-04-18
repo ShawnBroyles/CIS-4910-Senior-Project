@@ -7,11 +7,7 @@
 <PageTitle>Notes</PageTitle>
 
 <main>
-    <div class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
-        <div class="new-note-text">New Note
-            <button @onclick="@(() => ShowCreateNoteForm())"></button>
-        </div>
-    </div>
+    <button class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%" @onclick ="@(() => ShowCreateNoteForm())">New Note</button>
     <div class="content">
         <div class="header" style="left: -10%">
             <h1>Notes</h1>
@@ -50,12 +46,7 @@
                             </div>
                         </td>
                         <td>
-                            <div class="delete-note">
-                                Delete
-                                <form id="delete" method="post" asp-page-handler="Delete">
-                                    <button @onclick="@(() => DeleteNote(note.id))"></button>
-                                </form>
-                            </div>
+                            <button class="delete-note" @onclick="@(() => DeleteNote(note.id))">Delete</button>
                         </td>
                     </tr>
                     }
@@ -88,7 +79,7 @@
     // Function to show create note form
     void ShowCreateNoteForm()
     {
-        newNote = new note(0, 0, "", "", 0);
+        newNote = new note(0, 3, "", "", 1);
         showingCreateNoteForm = true;
     }
 
@@ -101,7 +92,7 @@
     // Function to save created note
     private async Task SaveCreateNote()
     {
-        database.CreateNote(newNote.id, newNote.employeeID, newNote.name, newNote.contents, newNote.categoryID);
+        database.CreateNote(newNote.employeeID, newNote.name, newNote.contents, newNote.categoryID);
         showingCreateNoteForm = false;
     }
 
