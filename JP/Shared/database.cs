@@ -623,18 +623,22 @@ namespace JP.Shared
         }
 
         // Function to create note
-        public static void CreateNote(int noteID, int EmpID, string NoteName, string Contents)
+        public static void CreateNote(int noteID, int EmpID, string NoteName, string Contents, int catID)
         {
             try
             {
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "INSERT INTO Notes() VALUES ();";
+                    var query = "INSERT INTO Notes(NoteName, Contents) VALUES (@NoteName, @Contents);";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@noteID", noteID);
+                        //command.Parameters.AddWithValue("@noteID", noteID);
+                        //command.Parameters.AddWithValue("@EmpID", EmpID);
+                        command.Parameters.AddWithValue("@NoteName", NoteName);
+                        command.Parameters.AddWithValue("@Contents", Contents);
+                        //command.Parameters.AddWithValue("@catID", catID);
                         connection.Open();
                         command.ExecuteNonQuery();
                     }

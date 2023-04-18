@@ -1,0 +1,28 @@
+﻿<div class="dialog-container">
+	<div class="dialog">
+		<div class="dialog-title">
+			<h2>New Note</h2>
+		</div>
+		<form class="dialog-body">
+			<div>
+				<label>Name & Date:</label>
+				<input type="text" @bind="Note.name"/>
+			</div>
+			<div>
+				<label>Content:</label>
+				<input type="text" @bind="Note.contents"/>
+			</div>
+		</form>
+		<div class="dialog-buttons">
+			<button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+			<button class="btn btn-success ml-auto" @onclick="OnSave">Save</button>
+		</div>
+	</div>
+</div>
+
+@code {
+
+	[Parameter] public note Note { get; set; }
+	[Parameter] public EventCallback OnCancel { get; set; }
+	[Parameter] public EventCallback OnSave { get; set; }
+}

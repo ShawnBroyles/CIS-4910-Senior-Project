@@ -9,7 +9,7 @@
 <main>
     <div class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
         <div class="new-note-text">New Note
-            <!----<button @onclick="@(() => CreateNote())"></button>--->
+            <button @onclick="@(() => ShowCreateNoteForm())"></button>
         </div>
     </div>
     <div class="content">
@@ -65,13 +65,44 @@
     </div>
 </main>
 
+@if (showingCreateNoteForm) {
+    
+    <CreateNoteForm 
+        Note="newNote"
+        OnCancel="CancelCreateNote"
+        OnSave="SaveCreateNote"/>
+
+}
+
 @functions{
+
+    note newNote;
+    bool showingCreateNoteForm;
+
+    // Function to delete notes
     private async Task DeleteNote(int id)
     {
         database.DeleteNote(id);
     }
 
-    private async Task CreateNote()
+    // Function to show create note form
+    void ShowCreateNoteForm()
     {
+        newNote = new note(0, 0, "", "", 0);
+        showingCreateNoteForm = true;
     }
+
+    // Function to cancel note creation
+    void CancelCreateNote()
+    {
+        showingCreateNoteForm = false;
+    }
+
+    // Function to save created note
+    private async Task SaveCreateNote()
+    {
+        database.CreateNote(newNote.id, newNote.employeeID, newNote.name, newNote.contents, newNote.categoryID);
+        showingCreateNoteForm = false;
+    }
+
 }

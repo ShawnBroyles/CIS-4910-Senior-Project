@@ -1,0 +1,15 @@
+﻿.dialog-container {
+    position: absolute;
+    border:solid;
+    color: black;
+    width: 60%;
+    height: 1400%;
+    background-color: lightgray;
+    padding:20px 20px 20px 20px;
+    top: 500%;
+    left: 20%;
+}
+.dialog-title {
+    text-align: center;
+    color: black;
+}
