@@ -126,7 +126,7 @@
     // Function to save editted note
     private async Task SaveEditNote()
     {
-        database.EditNote(newNote.id, newNote.employeeID, newNote.name, newNote.contents, newNote.categoryID);
+        database.EditNote(editNote.id, editNote.name, editNote.contents, editNote.categoryID);
         showingEditNoteForm = false;
     }
 }
