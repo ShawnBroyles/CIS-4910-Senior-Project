@@ -136,20 +136,24 @@ namespace JP.Shared
 
     public class sale
     {
-        public int id { get; set; }
         public DateTime date { get; set; }
-        public int clientID { get; set; }
-        public int employeeID { get; set; }
-        public int productID { get; set; }
-        public int categoryID { get; set; }
-        public sale(int _id, DateTime _date, int _clientID, int _employeeID, int _productID, int _categoryID)
+        public string companyName { get; set; }
+        public string clientfName { get; set; }
+        public string clientlName { get; set; }
+        public string employeefName { get; set; }
+        public string employeelName { get; set; }
+        public string productName { get; set; }
+        public string categoryName { get; set; }
+        public sale(DateTime _date, string _companyName, string  _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName)
         {
-            id = _id;
             date = _date;
-            clientID = _clientID;
-            employeeID = _employeeID;
-            productID = _productID;
-            categoryID = _categoryID;
+            companyName = _companyName;
+            clientfName = _clientfName;
+            clientlName = _clientlName;
+            employeefName = _employeefName;
+            employeelName = _employeelName;
+            productName = _productName;
+            categoryName = _categoryName;
         }
     }
 
@@ -487,7 +491,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM sale;";
+                    var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -497,7 +501,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Sale ID, Date, Client ID, Employee ID, Product ID, Category ID
-                                sales.Add(new sale(reader.GetInt32(0), reader.GetDateTime(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5)));
+                                sales.Add(new sale(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7)));
                             }
                         }
                     }

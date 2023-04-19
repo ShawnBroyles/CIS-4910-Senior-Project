@@ -13,6 +13,8 @@ html, body {
 table {
     border-collapse: collapse;
     width: 150%;
+  align-items:center;
+    margin-right: 500px;
 }
 
     table td {

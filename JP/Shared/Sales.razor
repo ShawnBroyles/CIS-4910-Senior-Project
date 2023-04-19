@@ -19,14 +19,14 @@
             </div>
             <table class ="table table-sm table-bordered">
                 <tr>
-                    <th>ID</th>
                     <th>Date</th>
+                    <th>Company</th>
                     <th>Client</th>
                     <th>Employee</th>
                     <th>Product</th>
                     <th>Category</th>
                 </tr>
-                <tr>
+                <!--  <tr>
                     @foreach (product prod in database.GetProducts()){
                     <td>@prod.id</td>break;}
                     @foreach (product prod in database.GetProducts()){
@@ -39,16 +39,21 @@
                     <td>@prod.name</td>break;}
                     @foreach (product prod in database.GetProducts()){
                     <td>@prod.categoryName</td>break;}
-                </tr>
+                </tr>-->
                 @foreach (sale sale in database.GetSales())
                 {
+                    
+                    
                     <tr>
-                        <td>@sale.id</td>
-                        <td>@sale.date</td>
-                        <td>@sale.clientID</td>
-                        <td>@sale.employeeID</td>
-                        <td>@sale.productID</td>
-                        <td>@sale.categoryID</td>
+                        <td>@sale.date.ToString("MM/dd/yyyy")</td>
+                        <td>@sale.companyName</td>
+                        <td>@sale.clientfName <br> @sale.clientlName</td>
+                        <td>
+                            @sale.employeefName<br>
+                            @sale.employeelName</td>
+                        <td>@sale.productName</td>
+                        <td>@sale.categoryName</td>
+
                     </tr>
                 }
             </table>
