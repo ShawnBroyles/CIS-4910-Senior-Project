@@ -1,9 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using JP.Shared
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/notes"
 
 <PageTitle>Notes</PageTitle>
-
 
 <main>
     <div class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
@@ -17,7 +18,7 @@
             <div>
                 <form class="form-inline">
                     <div class="form-group col-md-6" style="float:right">
-                        <input type="search" id="query" name="q" placeholder="Search...">
+                        <input type="search" id="query" name="q" asp-for="searchTerm" placeholder="Search...">
                     </div>
                 </form>
             </div>
@@ -29,23 +30,33 @@
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
-                @foreach (note note in database.GetNotes())
-                {
+                 @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
+                    foreach (note note in database.GetNotes(0, searchTerm))
+                    {
                     <tr>
                         <td>@note.name</td>
                         <td>@note.contents</td>
                         <td>@note.categoryID</td>
                         <td>
-                            <div class="edit-note mx-auto">
-                                <div class="edit-note-text">Edit</div>
+                            <div class="edit-note">
+                                Edit
+                                <form id="edit" method="post" asp-page-handler="Edit">
+                                    <button type="submit" name="edit-note" value="@note.id" OnClick="EditNote"></button>
+                                </form>
                             </div>
                         </td>
                         <td>
-                            <div class="delete-note mx-auto">
-                                <div class="delete-note-text">X</div>
+                            <div class="delete-note">
+                                Delete
+                                <form id="delete" method="post" asp-page-handler="Delete">
+                                    <button type="submit" name="delete-note" value="@note.id" OnClick="DeleteNote"></button>
+                                </form>
                             </div>
                         </td>
                     </tr>
+                    }
                 }
             </table>
         </div>

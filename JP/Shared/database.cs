@@ -1,10 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Text.RegularExpressions;
+using System.Windows.Input;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using static Azure.Core.HttpHeader;
 
 namespace JP.Shared
 {
+
     public class employee
     {
         public int id { get; set; }
@@ -205,6 +210,10 @@ namespace JP.Shared
             categoryID = _categoryID;
         }
     }
+    public class SearchModel
+    {
+        public string searchTerm { get; set; }
+    }
 
     public class recommended
     {
@@ -220,10 +229,23 @@ namespace JP.Shared
         // Input sanitization to prevent SQL injection
         // Example usage:   Tuple<bool, string> data = inputSanitization("Hello World.");
         //                  if (data.Item1) { string myData = data.Item2; } else { /* Ouput error message */ }
-        public Tuple<bool, string> inputSanitization(string input)
+        public static Tuple<bool, string> inputSanitization(string input)
         {
             // Only accepting input that is alphanumeric with spaces, underscores, periods, and new lines
             return Tuple.Create(Regex.Match(input, "^[a-zA-Z0-9\\s\\n_.]+$").Success, input);
+        }
+
+        public static account GetUser(string username, string password)
+        {
+            List<account> accounts = GetAccounts();
+            foreach (account acc in accounts)
+            {
+                if (acc.username == username && acc.password == password)
+                {
+                    return acc;
+                }
+            }
+            return null;
         }
 
         public static List<employee> GetEmployees()
@@ -260,7 +282,7 @@ namespace JP.Shared
             return employees;
         }
 
-        public static List<product> GetProducts(int category = 0) // Optional parameter is set to 0 by default
+        public static List<product> GetProducts(int category = 0, string searchTerm = "") // Optional parameter is set to 0 by default
         {
             List<product> products = new List<product>();
             try
@@ -269,6 +291,12 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT * FROM product";
+                    if (searchTerm != "")
+                    {
+                        query = "SELECT * FROM product WHERE ProductDescription LIKE \'%" + searchTerm + "%\' OR ProductName LIKE  \'%" + searchTerm + "%\' OR " +
+                                                            "ProductID LIKE \'%" + searchTerm + "%' OR ProductPrice LIKE \'%" + searchTerm + "%\' OR " +
+                                                            "CreateDate LIKE \'%" + searchTerm + "%\';";
+                    }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -407,7 +435,7 @@ namespace JP.Shared
             return GetClients(6); // 6 is the employee ID foreign key for the leads
         }
 
-        public static List<client> GetClients(int employeeID = 0) // Default value of 0 to receive all clients (non-leads) in the system
+        public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
         {
             List<client> clients = new List<client>();
             try
@@ -416,6 +444,14 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
+                    if (searchTerm != "")
+                    {
+                        query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+                                                           "client.fName LIKE '%" + searchTerm + "%' OR client.lName LIKE '%" + searchTerm + "%' OR " +
+                                                            "client.PhoneNum LIKE '%" + searchTerm + "%' OR client.EmpID LIKE '%" + searchTerm + "%' OR " +
+                                                            "client.CompanyID LIKE '%" + searchTerm + "%' OR client.CatagoryID LIKE '%" + searchTerm + "%';";
+                    }
+                    // var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -447,6 +483,34 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return clients;
+        }
+
+        // Function to delete client using the clientID as input
+        public static void DeleteClient(int clientID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "DELETE FROM notes WHERE ClientID=@clientID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
         }
 
         public static List<meeting> GetMeetings()
@@ -517,7 +581,7 @@ namespace JP.Shared
             return sales;
         }
 
-        public static List<note> GetNotes(int employeeID = 0) // Specify the employeeID parameter to receive notes from a specific employee
+        public static List<note> GetNotes(int employeeID = 0, string searchTerm = "") // Specify the employeeID parameter to receive notes from a specific employee
         {
             List<note> notes = new List<note>();
             try
@@ -526,6 +590,11 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT * FROM notes;";
+                    if (searchTerm != "")
+                    {
+                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm + "%\' OR Contents LIKE  \'%" + searchTerm + "%\'" +
+                                                           " OR CatagoryID LIKE \'%" + searchTerm + "%\';";
+                    }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -553,6 +622,34 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return notes;
+        }
+
+        // Function to delete note using the noteID as input
+        public static void DeleteNote(int noteID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "DELETE FROM notes WHERE NoteID=@noteID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@noteID", noteID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
         }
 
         public static List<task> GetTasks()

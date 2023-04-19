@@ -119,65 +119,45 @@ input {
     background-color: #052767;
     height: 40px;
     display: flex;
-    width: 140px;
+    width: 50px;
     border: 1px solid;
     position: sticky;
     border: 1px solid;
     border-color: black;
     padding-block: 5px;
     justify-content: center;
-}
-
-.edit-note-text {
     font-size: 10px;
     color: white;
-    font-size: 24px;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     user-select: none;
-    white-space: nowrap;
 }
 
-.edit-note:hover {
-    opacity: 60%;
-    transition: opacity .3s ease-in-out;
-    -moz-transition: opacity .3s ease-in-out;
-    -webkit-transition: opacity .3s ease-in-out;
-}
+    .edit-note:hover {
+        opacity: 60%;
+        transition: opacity .3s ease-in-out;
+        -moz-transition: opacity .3s ease-in-out;
+        -webkit-transition: opacity .3s ease-in-out;
+    }
 
 .delete-note {
     margin: auto;
     background-color: red;
     height: 40px;
     display: flex;
-    width: 140px;
+    width: 40px;
     border: 1px solid;
-    position:sticky;
+    position: sticky;
     border: 1px solid;
     border-color: black;
     padding-block: 5px;
     justify-content: center;
-}
-
-.delete-note-text {
     font-size: 10px;
     color: white;
-    font-size: 24px;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     user-select: none;
-    white-space: nowrap;
 }
 
-.delete-note:hover {
-    opacity: 60%;
-    transition: opacity .3s ease-in-out;
-    -moz-transition: opacity .3s ease-in-out;
-    -webkit-transition: opacity .3s ease-in-out;
-}
+    .delete-note:hover {
+        opacity: 60%;
+        transition: opacity .3s ease-in-out;
+        -moz-transition: opacity .3s ease-in-out;
+        -webkit-transition: opacity .3s ease-in-out;
+    }

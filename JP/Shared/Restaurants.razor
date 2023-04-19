@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using JP.Shared
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/products/restaurants"
 
@@ -13,7 +15,7 @@
             <div>
                 <form class="form-inline">
                     <div class="form-group col-md-6" style="float:right">
-                        <input type="search" id="query" name="q" placeholder="Search...">
+                        <input type="search" id="query" name="q" asp-for="searchTerm" placeholder="Search...">
                     </div>
                 </form>
             </div>
@@ -26,17 +28,21 @@
                     <th>Date Created</th>
                     <th>Description</th>
                 </tr>
-                @foreach (product prod in database.GetProducts(6))
-                {
-                            <tr>
-                                <td>@prod.id</td>
-                                <td>@prod.name</td>
-                                <td>@prod.categoryName</td>
-                                <td>@prod.price</td>
-                                <td>@prod.date</td>
-                                <td>@prod.description</td>
-                            </tr>
-                }
+                @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";                
+                    foreach (product prod in database.GetProducts(6, searchTerm))
+                    {
+                    <tr>
+                        <td>@prod.id</td>
+                        <td>@prod.name</td>
+                        <td>@prod.categoryName</td>
+                        <td>@prod.price</td>
+                        <td>@prod.date</td>
+                        <td>@prod.description</td>
+                    </tr>
+                    }
+                   }
             </table>
         </div>
     </div>
