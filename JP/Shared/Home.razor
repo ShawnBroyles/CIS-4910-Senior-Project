@@ -50,7 +50,7 @@
                         <hr>
                         @foreach (sale sale in database.GetSales())
                         {
-                            <dt>@sale.date @sale.employeeID @sale.clientID @sale.productID</dt>
+                            <dt>Date: @sale.date.ToString("MM/dd/yyyy")<br>Employee: @sale.employeefName @sale.employeelName<br>Client: @sale.clientfName @sale.clientlName<br>Company: @sale.companyName<br>Product: @sale.productName</dt>
                             <br>
                         }
                     </dl>

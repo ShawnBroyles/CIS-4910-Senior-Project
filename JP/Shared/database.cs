@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
+using JP.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -95,6 +97,7 @@ namespace JP.Shared
 
     public class client
     {
+        public DateTime date { get; set; }
         public int id { get; set; }
         public string email { get; set; }
         public string firstName { get; set; }
@@ -114,6 +117,7 @@ namespace JP.Shared
             phoneNumber = _phoneNumber;
             employeeID = _employeeID;
             categoryID = _categoryID;
+            date = DateTime.Now.AddDays(-3000); //temp
         }
     }
 
@@ -140,20 +144,24 @@ namespace JP.Shared
 
     public class sale
     {
-        public int id { get; set; }
         public DateTime date { get; set; }
-        public int clientID { get; set; }
-        public int employeeID { get; set; }
-        public int productID { get; set; }
-        public int categoryID { get; set; }
-        public sale(int _id, DateTime _date, int _clientID, int _employeeID, int _productID, int _categoryID)
+        public string companyName { get; set; }
+        public string clientfName { get; set; }
+        public string clientlName { get; set; }
+        public string employeefName { get; set; }
+        public string employeelName { get; set; }
+        public string productName { get; set; }
+        public string categoryName { get; set; }
+        public sale(DateTime _date, string _companyName, string  _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName)
         {
-            id = _id;
             date = _date;
-            clientID = _clientID;
-            employeeID = _employeeID;
-            productID = _productID;
-            categoryID = _categoryID;
+            companyName = _companyName;
+            clientfName = _clientfName;
+            clientlName = _clientlName;
+            employeefName = _employeefName;
+            employeelName = _employeelName;
+            productName = _productName;
+            categoryName = _categoryName;
         }
     }
 
@@ -212,6 +220,19 @@ namespace JP.Shared
         public recommended(string _productname)
         {
             productname = _productname;
+        }
+    }
+
+    public class leaddealsale
+    {
+        public client client { get; set; }
+        public deal deal { get; set; }
+        public sale sale { get; set; }
+        public leaddealsale(client _client, deal _deal, sale _sale)
+        {
+            this.client = _client;
+            this.deal = _deal;
+            this.sale = _sale;
         }
     }
 
@@ -574,7 +595,9 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM sale;";
+                    var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
+                    
+                    /* merged code - the query might need to be changed to match the fields in the query above
                     if (searchTerm != "")
                     {
                        query = "SELECT * FROM sale WHERE SaleDate LIKE \'%" + searchTerm + "%\';";
@@ -582,6 +605,7 @@ namespace JP.Shared
                     //                                      " OR Date LIKE \'%" + searchTerm + "%\' OR CatagoryName LIKE \'%" + searchTerm + "%\';" +
                     //                                      " OR ProductName LIKE \'%" + searchTerm + "%\';
                     }
+                    */
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -591,11 +615,12 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Sale ID, Date, Client ID, Employee ID, Product ID, Category ID
-                                sales.Add(new sale(reader.GetInt32(0), reader.GetDateTime(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5)));
+                                sales.Add(new sale(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7)));
                             }
                         }
                     }
                     connection.Close();
+                    sales.Sort((s1, s2) => DateTime.Compare(s2.date, s1.date));
                     return sales;
                 }
             }
@@ -840,6 +865,40 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return recommendeds;
+        }
+        public static List<leaddealsale> GetLeadDealSales()
+        {
+            List<leaddealsale> leaddealsales = new List<leaddealsale>();
+            List<client> leads = GetClients();
+            List<deal> deals = GetDeals();
+            List<sale> sales = GetSales();
+
+            /*
+            foreach(sale sale in sales)
+            {
+                deal lastDeal;
+                client lastLead;
+                
+                foreach (deal deal in deals)
+                {
+                    foreach (client lead in leads)
+                    {
+
+                        if (lead.employeeID == deal.employeeID && deal.employeeID == sale.employeeID)
+                        {
+                            if (deal.date <= sale.date && lastDeal.date <= deal.date)
+                            {
+                                lastDeal = deal;
+                                lastLead = lead;
+                            }
+                        }
+                    }
+                }
+                leaddealsales.Add(new leaddealsale(lastLead, lastDeal, sale));
+            }
+            */
+            leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds1.sale.date, lds2.sale.date));
+            return leaddealsales;
         }
 
     }
