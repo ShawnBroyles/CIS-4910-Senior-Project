@@ -2,6 +2,7 @@
 using System.ComponentModel.Design;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
+using JP.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -96,6 +97,7 @@ namespace JP.Shared
 
     public class client
     {
+        public DateTime date { get; set; }
         public int id { get; set; }
         public string email { get; set; }
         public string firstName { get; set; }
@@ -115,6 +117,7 @@ namespace JP.Shared
             phoneNumber = _phoneNumber;
             employeeID = _employeeID;
             categoryID = _categoryID;
+            date = DateTime.Now.AddDays(-3000); //temp
         }
     }
 
@@ -221,6 +224,19 @@ namespace JP.Shared
         public recommended(string _productname)
         {
             productname = _productname;
+        }
+    }
+
+    public class leaddealsale
+    {
+        public client client { get; set; }
+        public deal deal { get; set; }
+        public sale sale { get; set; }
+        public leaddealsale(client _client, deal _deal, sale _sale)
+        {
+            this.client = _client;
+            this.deal = _deal;
+            this.sale = _sale;
         }
     }
 
@@ -570,6 +586,7 @@ namespace JP.Shared
                         }
                     }
                     connection.Close();
+                    sales.Sort((s1, s2) => DateTime.Compare(s2.date, s1.date));
                     return sales;
                 }
             }
@@ -752,6 +769,40 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return recommendeds;
+        }
+        public static List<leaddealsale> GetLeadDealSales()
+        {
+            List<leaddealsale> leaddealsales = new List<leaddealsale>();
+            List<client> leads = GetClients();
+            List<deal> deals = GetDeals();
+            List<sale> sales = GetSales();
+
+            /*
+            foreach(sale sale in sales)
+            {
+                deal lastDeal;
+                client lastLead;
+                
+                foreach (deal deal in deals)
+                {
+                    foreach (client lead in leads)
+                    {
+
+                        if (lead.employeeID == deal.employeeID && deal.employeeID == sale.employeeID)
+                        {
+                            if (deal.date <= sale.date && lastDeal.date <= deal.date)
+                            {
+                                lastDeal = deal;
+                                lastLead = lead;
+                            }
+                        }
+                    }
+                }
+                leaddealsales.Add(new leaddealsale(lastLead, lastDeal, sale));
+            }
+            */
+            leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds1.sale.date, lds2.sale.date));
+            return leaddealsales;
         }
 
     }
