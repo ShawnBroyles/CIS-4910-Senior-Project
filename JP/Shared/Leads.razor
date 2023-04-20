@@ -15,7 +15,7 @@
         <div class="header" style="left: -10%">
             <h1>Potential Leads</h1>
         </div>
-        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 235%; left: -10%"
+        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 235%; left: -10%">
             <div> 
                 <form class="form-inline">
                     <div class="form-group col-md-6" style="float:right">
@@ -32,7 +32,7 @@
                     <th>Phone Number</th>
                     <th>Category</th>
                     <th>Recommended Products</th>
-                    <th>Edit</th>
+                    <th>Delete</th>
                     
                 </tr>
                 @{
@@ -54,11 +54,7 @@
                                 }
                             </td>
                             <td>
-                                <div class="edit-lead">Edit
-                                    <form id="edit" method="post" asp-page-handler="Edit">
-                                        <button type="submit" name="edit-lead" value="@lead.id"></button>
-                                    </form>
-                                </div>
+                                <button class="delete-lead" @onclick="@(() => CheckDeleteLead(lead.id))">Delete</button>
                             </td>
                         </tr>
                     }
@@ -67,3 +63,44 @@
         </div>
     </div>
 </main>
+
+@if (showingConfirmDeleteLead)
+{
+    
+    <ConfirmDeleteLead 
+        OnNo="CancelDeleteLead"
+        OnYes="DeleteLead"/>
+
+}
+
+@functions {
+
+    // DELETE LEAD ---------------------------------------------------------------
+
+    bool showingConfirmDeleteLead;
+    int leadID;
+
+    // Function to delete leads
+    private async Task CheckDeleteLead(int id)
+    {
+        // Check if they are authorized to delete lead (admin only)
+
+        // Confirm if they would like to delete lead
+        leadID = id;
+        showingConfirmDeleteLead = true;
+    }
+
+    void CancelDeleteLead()
+    {
+        showingConfirmDeleteLead = false;
+    }
+
+    void DeleteLead()
+    {
+        database.DeleteLead(leadID);
+        showingConfirmDeleteLead = false;
+    }
+
+    // CREATE LEAD ---------------------------------------------------------------
+
+}

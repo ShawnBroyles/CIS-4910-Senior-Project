@@ -32,7 +32,7 @@
                     <th>Phone Number</th>
                     <th>Category</th>
                     <th>Edit</th>
-                    <th>Delete</th>
+                    <th>Remove</th>
                 </tr>
                  @{
                     string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
@@ -54,11 +54,7 @@
                             </div>
                         </td>
                         <td>
-                            <div class="delete-client">Delete
-                                <form id="delete" method="post" asp-page-handler="Delete">
-                                    <button type="submit" name="delete-client" value="@clt.id"></button>
-                                </form>
-                            </div>
+                            <button class="remove-client" @onclick="@(() => ConfirmRemoveClient(clt.id))">Remove</button>
                         </td>
                     </tr>
                     }
@@ -67,3 +63,40 @@
         </div>
     </div>
 </main>
+
+@if (showingConfirmRemoveClient)
+{
+
+    <ConfirmRemoveClient
+        OnNo="CancelRemoveClient"
+        OnYes="RemoveClient" />
+
+}
+
+@functions {
+
+    // REMOVE CLIENT ---------------------------------------------------------------
+
+    bool showingConfirmRemoveClient;
+    int clientID;
+
+    // Function to confirm client removal
+    private async Task ConfirmRemoveClient (int id)
+    {
+        // Confirm if they would like to remove client
+        clientID = id;
+        showingConfirmRemoveClient = true;
+    }
+
+    void CancelRemoveClient()
+    {
+        showingConfirmRemoveClient = false;
+    }
+
+    void RemoveClient()
+    {
+        database.RemoveClient(clientID);
+        showingConfirmRemoveClient = false;
+    }
+
+}

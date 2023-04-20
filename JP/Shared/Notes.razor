@@ -7,9 +7,7 @@
 <PageTitle>Notes</PageTitle>
 
 <main>
-    <div class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
-        <div class="new-note-text">New Note</div>
-    </div>
+    <button class="new-note mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%" @onclick ="@(() => ShowCreateNoteForm())">New Note</button>
     <div class="content">
         <div class="header" style="left: -10%">
             <h1>Notes</h1>
@@ -40,20 +38,10 @@
                         <td>@note.contents</td>
                         <td>@note.categoryID</td>
                         <td>
-                            <div class="edit-note">
-                                Edit
-                                <form id="edit" method="post" asp-page-handler="Edit">
-                                    <button type="submit" name="edit-note" value="@note.id" OnClick="EditNote"></button>
-                                </form>
-                            </div>
+                            <button class="edit-note" @onclick="@(() => ShowEditNoteForm(note.id))">Edit</button>
                         </td>
                         <td>
-                            <div class="delete-note">
-                                Delete
-                                <form id="delete" method="post" asp-page-handler="Delete">
-                                    <button type="submit" name="delete-note" value="@note.id" OnClick="DeleteNote"></button>
-                                </form>
-                            </div>
+                            <button class="delete-note" @onclick="@(() => DeleteNote(note.id))">Delete</button>
                         </td>
                     </tr>
                     }
@@ -62,3 +50,83 @@
         </div>
     </div>
 </main>
+
+@if (showingCreateNoteForm)
+{
+    
+    <CreateNoteForm 
+        Note="newNote"
+        OnCancel="CancelCreateNote"
+        OnSave="SaveCreateNote"/>
+
+}
+
+@if (showingEditNoteForm)
+{
+
+    <EditNoteForm 
+        Note="editNote"
+        OnCancel="CancelEditNote"
+        OnSave="SaveEditNote" />
+
+}
+
+@functions{
+
+    note newNote;
+    note editNote;
+    bool showingCreateNoteForm;
+    bool showingEditNoteForm;
+
+    // DELETE NOTE ---------------------------------------------------------------
+
+    // Function to delete notes
+    private async Task DeleteNote(int id)
+    {
+        database.DeleteNote(id);
+    }
+
+    // CREATE NOTE ---------------------------------------------------------------
+
+    // Function to show create note form
+    void ShowCreateNoteForm()
+    {
+        newNote = new note(0, 3, "", "", 7);
+        showingCreateNoteForm = true;
+    }
+
+    // Function to cancel note creation
+    void CancelCreateNote()
+    {
+        showingCreateNoteForm = false;
+    }
+
+    // Function to save created note
+    private async Task SaveCreateNote()
+    {
+        database.CreateNote(newNote.employeeID, newNote.name, newNote.contents, newNote.categoryID);
+        showingCreateNoteForm = false;
+    }
+
+    // EDIT NOTE ---------------------------------------------------------------
+
+    // Function to show edit note form
+    void ShowEditNoteForm(int id)
+    {
+        editNote = new note(id, 0, "", "", 7);
+        showingEditNoteForm = true;
+    }
+
+    // Function to cancel note edit
+    void CancelEditNote()
+    {
+        showingEditNoteForm = false;
+    }
+
+    // Function to save editted note
+    private async Task SaveEditNote()
+    {
+        database.EditNote(editNote.id, editNote.name, editNote.contents, editNote.categoryID);
+        showingEditNoteForm = false;
+    }
+}

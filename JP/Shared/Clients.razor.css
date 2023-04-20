@@ -138,7 +138,7 @@ input {
         -webkit-transition: opacity .3s ease-in-out;
     }
 
-.delete-client {
+.remove-client {
     margin: auto;
     background-color: red;
     height: 40px;
@@ -155,7 +155,7 @@ input {
     user-select: none;
 }
 
-    .delete-client:hover {
+    .remove-client:hover {
         opacity: 60%;
         transition: opacity .3s ease-in-out;
         -moz-transition: opacity .3s ease-in-out;

@@ -213,10 +213,6 @@ namespace JP.Shared
             categoryID = _categoryID;
         }
     }
-    public class SearchModel
-    {
-        public string searchTerm { get; set; }
-    }
 
     public class recommended
     {
@@ -501,15 +497,43 @@ namespace JP.Shared
             return clients;
         }
 
-        // Function to delete client using the clientID as input
-        public static void DeleteClient(int clientID)
+        // Function to remove client from an employee using the clientID as input
+        public static void RemoveClient(int clientID)
         {
             try
             {
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "DELETE FROM notes WHERE ClientID=@clientID;";
+                    var query = "UPDATE Client SET EmpID=6 WHERE ClientID=@clientID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+        // Function to delete lead using the clientID as input
+        public static void DeleteLead(int clientID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "DELETE FROM Client WHERE clientID=@clientID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -563,7 +587,7 @@ namespace JP.Shared
             return meetings;
         }
 
-        public static List<sale> GetSales()
+        public static List<sale> GetSales(string searchTerm = "")
         {
             List<sale> sales = new List<sale>();
             try
@@ -572,6 +596,16 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
+                    
+                    /* merged code - the query might need to be changed to match the fields in the query above
+                    if (searchTerm != "")
+                    {
+                       query = "SELECT * FROM sale WHERE SaleDate LIKE \'%" + searchTerm + "%\';";
+                    //                                      " OR EmployeeName LIKE  \'%" + searchTerm + "%\'" +
+                    //                                      " OR Date LIKE \'%" + searchTerm + "%\' OR CatagoryName LIKE \'%" + searchTerm + "%\';" +
+                    //                                      " OR ProductName LIKE \'%" + searchTerm + "%\';
+                    }
+                    */
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -641,6 +675,37 @@ namespace JP.Shared
             return notes;
         }
 
+        // Function to create note
+        public static void CreateNote(int EmpID, string NoteName, string Contents, int catID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "INSERT INTO Notes(EmpID, NoteName, Contents, CatagoryID) VALUES (@EmpID, @NoteName, @Contents, @catID);";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@EmpID", EmpID);
+                        command.Parameters.AddWithValue("@NoteName", NoteName);
+                        command.Parameters.AddWithValue("@Contents", Contents);
+                        command.Parameters.AddWithValue("@catID", catID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
         // Function to delete note using the noteID as input
         public static void DeleteNote(int noteID)
         {
@@ -649,11 +714,42 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "DELETE FROM notes WHERE NoteID=@noteID;";
+                    var query = "DELETE FROM Notes WHERE NoteID=@noteID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@noteID", noteID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+        // Function to edit note using the noteID as input
+        public static void EditNote(int noteID, string NoteName, string Contents, int CatagoryID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "UPDATE Notes SET NoteName=@NoteName, Contents=@Contents, CatagoryID=@CatagoryID WHERE NoteID=@noteID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@noteID", noteID);
+                        command.Parameters.AddWithValue("@NoteName", NoteName);
+                        command.Parameters.AddWithValue("@Contents", Contents);
+                        command.Parameters.AddWithValue("@CatagoryID", CatagoryID);
                         connection.Open();
                         command.ExecuteNonQuery();
                     }

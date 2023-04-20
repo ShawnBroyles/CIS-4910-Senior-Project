@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @page "/sales"
 
@@ -40,21 +41,23 @@
                     @foreach (product prod in database.GetProducts()){
                     <td>@prod.categoryName</td>break;}
                 </tr>-->
-                @foreach (sale sale in database.GetSales())
-                {
-                    
-                    
-                    <tr>
-                        <td>@sale.date.ToString("MM/dd/yyyy")</td>
-                        <td>@sale.companyName</td>
-                        <td>@sale.clientfName <br> @sale.clientlName</td>
-                        <td>
-                            @sale.employeefName<br>
-                            @sale.employeelName</td>
-                        <td>@sale.productName</td>
-                        <td>@sale.categoryName</td>
 
-                    </tr>
+                @{
+                    string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+                    string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
+                    foreach (sale sale in database.GetSales(searchTerm))
+                    {
+                        <tr>
+                            <td>@sale.date.ToString("MM/dd/yyyy")</td>
+                            <td>@sale.companyName</td>
+                            <td>@sale.clientfName <br> @sale.clientlName</td>
+                            <td>
+                                @sale.employeefName<br>
+                                @sale.employeelName</td>
+                            <td>@sale.productName</td>
+                            <td>@sale.categoryName</td>
+                        </tr>
+                    }
                 }
             </table>
         </div>

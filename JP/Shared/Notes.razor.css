@@ -92,13 +92,13 @@ input {
     position: sticky;
     border-color: black;
     padding-block: 5px;
-}
-
-.new-note-text {
     font-size: 10px;
     color: white;
     font-size: 24px;
-    text-align: center;
+    align-items: center;
+}
+
+.new-note-text {
     position: absolute;
     top: 50%;
     left: 50%;
