@@ -463,7 +463,6 @@ namespace JP.Shared
                                                             "client.PhoneNum LIKE '%" + searchTerm + "%' OR client.EmpID LIKE '%" + searchTerm + "%' OR " +
                                                             "client.CompanyID LIKE '%" + searchTerm + "%' OR client.CatagoryID LIKE '%" + searchTerm + "%';";
                     }
-                    // var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -596,16 +595,14 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
-                    
-                    /* merged code - the query might need to be changed to match the fields in the query above
+
                     if (searchTerm != "")
                     {
-                       query = "SELECT * FROM sale WHERE SaleDate LIKE \'%" + searchTerm + "%\';";
-                    //                                      " OR EmployeeName LIKE  \'%" + searchTerm + "%\'" +
-                    //                                      " OR Date LIKE \'%" + searchTerm + "%\' OR CatagoryName LIKE \'%" + searchTerm + "%\';" +
-                    //                                      " OR ProductName LIKE \'%" + searchTerm + "%\';
+                        query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE " +
+                                                         "Sale.SaleDate LIKE '%" + searchTerm + "%' OR Company.CompanyName LIKE '%" + searchTerm + "%' OR Client.fName LIKE '%" + searchTerm + "%' OR Client.lName LIKE '%" + searchTerm + "%' OR " +
+                                                         "Employee.fName LIKE '%" + searchTerm + "%' OR Employee.lName LIKE '%" + searchTerm + "%' OR Product.ProductName LIKE '%" + searchTerm + "%' OR Catagory.CatagoryName LIKE '%" + searchTerm + "%';";
                     }
-                    */
+                    
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
