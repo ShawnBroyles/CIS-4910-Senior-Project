@@ -3,10 +3,13 @@ using System.ComponentModel.Design;
 using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
+using System.Xml.Linq;
 using JP.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.VisualBasic;
+using Radzen.Blazor;
 using static Azure.Core.HttpHeader;
 
 namespace JP.Shared
@@ -74,6 +77,8 @@ namespace JP.Shared
         public string name { get; set; }
         public int revenue { get; set; }
         public int categoryID { get; set; }
+        public int employees { get; set; }
+        public company() { }
         public company(int _id, string _name, int _revenue, int _categoryID)
         {
             id = _id;
@@ -945,6 +950,7 @@ namespace JP.Shared
             Console.ReadLine();
             return recommendeds;
         }
+
         public static List<leaddealsale> GetLeadDealSales()
         {
             List<leaddealsale> leaddealsales = new List<leaddealsale>();
@@ -956,6 +962,69 @@ namespace JP.Shared
             }
             leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds2.sale.date, lds1.sale.date));
             return leaddealsales;
+        }
+
+        public static void CreateLead(client lead)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "INSERT INTO Client(Email, fName, lName, CompanyID, PhoneNum, EmpID, CatagoryID, JoinDate) VALUES (@Email, @fName, @lName, @CompanyID, @PhoneNum, @EmpID, @CatagoryID, @JoinDate);";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", lead.firstName);
+                        command.Parameters.AddWithValue("@lName", lead.lastName);
+                        command.Parameters.AddWithValue("@CompanyID", lead.companyID);
+                        command.Parameters.AddWithValue("@PhoneNum", lead.phoneNumber);
+                        command.Parameters.AddWithValue("@EmpID", lead.employeeID);
+                        command.Parameters.AddWithValue("@CatagoryID", lead.categoryID);
+                        command.Parameters.AddWithValue("@JoinDate", lead.joinDate);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+        public static void CreateCompany(company company)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "INSERT INTO Company(CompanyName, CompanyRevenue, CatagoryID, employees) VALUES (@CompanyName, @CompanyRevenue, @CatagoryID, @employees);";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@CompanyName", company.name);
+                        command.Parameters.AddWithValue("@CompanyRevenue", company.revenue);
+                        command.Parameters.AddWithValue("@CatagoryID", company.categoryID);
+                        command.Parameters.AddWithValue("@employee", company.employees);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
         }
 
     }
