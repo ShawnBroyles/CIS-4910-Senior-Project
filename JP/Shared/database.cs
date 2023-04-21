@@ -242,14 +242,30 @@ namespace JP.Shared
 
     public class leaddealsale
     {
-        public client client { get; set; }
-        public deal deal { get; set; }
-        public sale sale { get; set; }
+        public string leadName { get; set; }
+        public string leadCompanyName { get; set; }
+        public DateTime leadJoinDate { get; set; }
+        public string leadEmployeeName { get; set; }
+        public string dealCategoryName { get; set; }
+        public string dealProductName { get; set; }
+        public DateTime dealDate { get; set; }
+        public string saleProductName { get; set; }
+        public DateTime saleDate { get; set; }
         public leaddealsale(sale _sale)
         {
-            this.client = database.GetClientFromID(_sale.clientID);
-            this.deal = database.GetDealFromID(_sale.fk_dealID);
-            this.sale = _sale;
+            client lead = database.GetClientFromID(_sale.clientID);
+            deal deal = database.GetDealFromID(_sale.fk_dealID);
+            sale sale = _sale;
+
+            leadName = lead.firstName + " " + lead.lastName;
+            leadCompanyName = lead.companyID;
+            leadJoinDate = lead.joinDate;
+            leadEmployeeName = deal.employeefName + " " + deal.employeelName;
+            dealCategoryName = deal.categoryName;
+            dealProductName = deal.productName;
+            dealDate = deal.date;
+            saleProductName = sale.productName;
+            saleDate = sale.date;
         }
     }
 
@@ -960,11 +976,11 @@ namespace JP.Shared
             {
                 leaddealsales.Add(new leaddealsale(s));
             }
-            leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds2.sale.date, lds1.sale.date));
+            leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds2.saleDate, lds1.saleDate));
             return leaddealsales;
         }
 
-        public static void CreateLead(client lead)
+        public static void CreateLead(client lead, int newCompanyID)
         {
             try
             {
@@ -977,7 +993,7 @@ namespace JP.Shared
                     {
                         command.Parameters.AddWithValue("@fName", lead.firstName);
                         command.Parameters.AddWithValue("@lName", lead.lastName);
-                        command.Parameters.AddWithValue("@CompanyID", lead.companyID);
+                        command.Parameters.AddWithValue("@CompanyID", newCompanyID);
                         command.Parameters.AddWithValue("@PhoneNum", lead.phoneNumber);
                         command.Parameters.AddWithValue("@EmpID", lead.employeeID);
                         command.Parameters.AddWithValue("@CatagoryID", lead.categoryID);
@@ -997,7 +1013,7 @@ namespace JP.Shared
             return;
         }
 
-        public static void CreateCompany(company company)
+        public static int CreateCompany(company company)
         {
             try
             {
@@ -1005,6 +1021,7 @@ namespace JP.Shared
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     var query = "INSERT INTO Company(CompanyName, CompanyRevenue, CatagoryID, employees) VALUES (@CompanyName, @CompanyRevenue, @CatagoryID, @employees);";
+                    int newCompanyID;
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -1013,10 +1030,10 @@ namespace JP.Shared
                         command.Parameters.AddWithValue("@CatagoryID", company.categoryID);
                         command.Parameters.AddWithValue("@employee", company.employees);
                         connection.Open();
-                        command.ExecuteNonQuery();
+                        newCompanyID = (int)command.ExecuteScalar();
                     }
                     connection.Close();
-                    return;
+                    return newCompanyID;
                 }
             }
             catch (SqlException e)
@@ -1024,7 +1041,7 @@ namespace JP.Shared
                 Console.WriteLine(e.ToString());
             }
             Console.ReadLine();
-            return;
+            return 0;
         }
 
     }

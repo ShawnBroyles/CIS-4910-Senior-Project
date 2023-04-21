@@ -19,9 +19,9 @@
                 @foreach (leaddealsale lds in database.GetLeadDealSales())
                 {
                     <tr>
-                        <td>Lead name: @lds.client.firstName @lds.client.lastName<br>Company name: @lds.deal.companyName<br>Join date: @lds.client.joinDate.ToString("MM/dd/yyyy")<br>Assigned to employee: @lds.deal.employeefName @lds.deal.employeelName</td>
-                        <td>Deal category: @lds.deal.categoryName<br>Product: @lds.deal.productName<br>Deal date: @lds.deal.date.ToString("MM/dd/yyyy")</td>
-                        <td>Product sold: @lds.sale.productName<br>Sale date: @lds.sale.date.ToString("MM/dd/yyyy")<br></td>
+                        <td>Lead name: @lds.leadName<br>Company name: @lds.leadCompanyName<br>Join date: @lds.leadJoinDate.ToString("MM/dd/yyyy")<br>Assigned to employee: @lds.leadEmployeeName</td>
+                        <td>Deal category: @lds.dealCategoryName<br>Product: @lds.dealProductName<br>Deal date: @lds.dealDate.ToString("MM/dd/yyyy")</td>
+                        <td>Product sold: @lds.saleProductName<br>Sale date: @lds.saleDate.ToString("MM/dd/yyyy")<br></td>
                     </tr>
                 }
             </table>

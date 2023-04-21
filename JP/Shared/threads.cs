@@ -50,8 +50,9 @@ namespace JP.Shared
                                 // Sixth item
 
                                 // Insert lead and company into database after the last item
-                                database.CreateCompany(company);
-                                database.CreateLead(lead);
+                                lead.employeeID = 6; // New Lead
+                                int newCompanyID = database.CreateCompany(company);
+                                database.CreateLead(lead, newCompanyID);
                                 break;
                         }
                         counter++;
