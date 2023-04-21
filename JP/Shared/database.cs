@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JP.Shared;
@@ -97,7 +98,7 @@ namespace JP.Shared
 
     public class client
     {
-        public DateTime date { get; set; }
+        public DateTime joinDate { get; set; }
         public int id { get; set; }
         public string email { get; set; }
         public string firstName { get; set; }
@@ -106,8 +107,8 @@ namespace JP.Shared
         public decimal phoneNumber { get; set; }
         public int employeeID { get; set; }
         public string categoryID { get; set; }
-
-        public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID)
+        public client() { }
+        public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID, DateTime _joinDate)
         {
             id = _id;
             email = _email;
@@ -117,7 +118,7 @@ namespace JP.Shared
             phoneNumber = _phoneNumber;
             employeeID = _employeeID;
             categoryID = _categoryID;
-            date = DateTime.Now.AddDays(-3000); //temp
+            joinDate = _joinDate;
         }
     }
 
@@ -152,7 +153,9 @@ namespace JP.Shared
         public string employeelName { get; set; }
         public string productName { get; set; }
         public string categoryName { get; set; }
-        public sale(DateTime _date, string _companyName, string  _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName)
+        public int clientID { get; set; }
+        public int fk_dealID { get; set; }
+        public sale(DateTime _date, string _companyName, string  _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName, int _clientID, int _fk_dealID)
         {
             date = _date;
             companyName = _companyName;
@@ -162,6 +165,8 @@ namespace JP.Shared
             employeelName = _employeelName;
             productName = _productName;
             categoryName = _categoryName;
+            clientID = _clientID;
+            fk_dealID = _fk_dealID;
         }
     }
 
@@ -197,20 +202,27 @@ namespace JP.Shared
 
     public class deal
     {
-        public int id { get; set; }
         public DateTime date { get; set; }
+        public string companyName { get; set; }
+        public string clientfName { get; set; }
+        public string clientlName { get; set; }
+        public string employeefName { get; set; }
+        public string employeelName { get; set; }
+        public string productName { get; set; }
+        public string categoryName { get; set; }
         public int clientID { get; set; }
-        public int employeeID { get; set; }
-        public int productID { get; set; }
-        public int categoryID { get; set; }
-        public deal(int _id, DateTime _date, int _clientID, int _employeeID, int _productID, int _categoryID)
+        public deal() { }
+        public deal(DateTime _date, string _companyName, string _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName, int _clientID)
         {
-            id = _id;
             date = _date;
+            companyName = _companyName;
+            clientfName = _clientfName;
+            clientlName = _clientlName;
+            employeefName = _employeefName;
+            employeelName = _employeelName;
+            productName = _productName;
+            categoryName = _categoryName;
             clientID = _clientID;
-            employeeID = _employeeID;
-            productID = _productID;
-            categoryID = _categoryID;
         }
     }
 
@@ -228,10 +240,10 @@ namespace JP.Shared
         public client client { get; set; }
         public deal deal { get; set; }
         public sale sale { get; set; }
-        public leaddealsale(client _client, deal _deal, sale _sale)
+        public leaddealsale(sale _sale)
         {
-            this.client = _client;
-            this.deal = _deal;
+            this.client = database.GetClientFromID(_sale.clientID);
+            this.deal = database.GetDealFromID(_sale.fk_dealID);
             this.sale = _sale;
         }
     }
@@ -455,10 +467,10 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
                     if (searchTerm != "")
                     {
-                        query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+                        query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
                                                            "client.fName LIKE '%" + searchTerm + "%' OR client.lName LIKE '%" + searchTerm + "%' OR " +
                                                             "client.PhoneNum LIKE '%" + searchTerm + "%' OR client.EmpID LIKE '%" + searchTerm + "%' OR " +
                                                             "client.CompanyID LIKE '%" + searchTerm + "%' OR client.CatagoryID LIKE '%" + searchTerm + "%';";
@@ -471,8 +483,8 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Client ID, Email, First Name, Last Name, Company ID, Phone Number, Employee ID, Category ID
-                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7)));
+                                // Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date
+                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8)));
                             }
                         }
                     }
@@ -494,6 +506,76 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return clients;
+        }
+
+        public static client GetClientFromID(int clientID)
+        {
+            var client = new client();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID " +
+                        "WHERE ClientID='"+clientID+"';";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date
+                                client = new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8));
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return client;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return client;
+        }
+
+        public static deal GetDealFromID(int dealID)
+        {
+            var deal = new deal();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT Deal.DealDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID FROM Deal INNER JOIN Client on Deal.ClientID = Client.ClientID INNER JOIN Employee on Deal.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Deal.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID " +
+                        "WHERE DealID='" + dealID + "';";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // Deal Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID
+                                deal = new deal(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8));
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return deal;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return deal;
         }
 
         // Function to remove client from an employee using the clientID as input
@@ -594,11 +676,11 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
+                    var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
 
                     if (searchTerm != "")
                     {
-                        query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE " +
+                        query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE " +
                                                          "Sale.SaleDate LIKE '%" + searchTerm + "%' OR Company.CompanyName LIKE '%" + searchTerm + "%' OR Client.fName LIKE '%" + searchTerm + "%' OR Client.lName LIKE '%" + searchTerm + "%' OR " +
                                                          "Employee.fName LIKE '%" + searchTerm + "%' OR Employee.lName LIKE '%" + searchTerm + "%' OR Product.ProductName LIKE '%" + searchTerm + "%' OR Catagory.CatagoryName LIKE '%" + searchTerm + "%';";
                     }
@@ -611,8 +693,8 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Sale ID, Date, Client ID, Employee ID, Product ID, Category ID
-                                sales.Add(new sale(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7)));
+                                // Sale Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID, Associated Deal ID
+                                sales.Add(new sale(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8), reader.GetInt32(9)));
                             }
                         }
                     }
@@ -804,7 +886,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM deal;";
+                    var query = "SELECT Deal.DealDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID FROM Deal INNER JOIN Client on Deal.ClientID = Client.ClientID INNER JOIN Employee on Deal.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Deal.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -813,8 +895,8 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Deal ID, Date, Client ID, Employee ID, Product ID, Category ID
-                                deals.Add(new deal(reader.GetInt32(0), reader.GetDateTime(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5)));
+                                // Deal Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID
+                                deals.Add(new deal(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8)));
                             }
                         }
                     }
@@ -866,35 +948,13 @@ namespace JP.Shared
         public static List<leaddealsale> GetLeadDealSales()
         {
             List<leaddealsale> leaddealsales = new List<leaddealsale>();
-            List<client> leads = GetClients();
-            List<deal> deals = GetDeals();
             List<sale> sales = GetSales();
 
-            /*
-            foreach(sale sale in sales)
+            foreach(sale s in sales)
             {
-                deal lastDeal;
-                client lastLead;
-                
-                foreach (deal deal in deals)
-                {
-                    foreach (client lead in leads)
-                    {
-
-                        if (lead.employeeID == deal.employeeID && deal.employeeID == sale.employeeID)
-                        {
-                            if (deal.date <= sale.date && lastDeal.date <= deal.date)
-                            {
-                                lastDeal = deal;
-                                lastLead = lead;
-                            }
-                        }
-                    }
-                }
-                leaddealsales.Add(new leaddealsale(lastLead, lastDeal, sale));
+                leaddealsales.Add(new leaddealsale(s));
             }
-            */
-            leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds1.sale.date, lds2.sale.date));
+            leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds2.sale.date, lds1.sale.date));
             return leaddealsales;
         }
 
