@@ -8,9 +8,7 @@
 
 
 <main>
-    <div class="new-lead mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
-        <div class="new-lead-text">New Lead</div>
-    </div>
+    <button class="new-lead mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%" @onclick="@(() => ShowAddLead())">New Lead</button>
     <div class ="content">
         <div class="header" style="left: -10%">
             <h1>Potential Leads</h1>
@@ -33,6 +31,7 @@
                     <th>Category</th>
                     <th>Recommended Products</th>
                     <th>Delete</th>
+                    <th>Add</th>
                     
                 </tr>
                 @{
@@ -55,6 +54,9 @@
                             </td>
                             <td>
                                 <button class="delete-lead" @onclick="@(() => CheckDeleteLead(lead.id))">Delete</button>
+                            </td>
+                            <td>
+                                <button class="add-client" @onclick="@(() => ShowAddClientForm(lead.id))">Add</button>
                             </td>
                         </tr>
                     }
@@ -80,6 +82,15 @@
     bool showingConfirmDeleteLead;
     int leadID;
 
+    private async Task ShowAddLead()
+    {
+        NavigationManager.NavigateTo("/add-lead");
+    }
+
+    private async Task ShowAddClientForm(int id)
+    {
+        
+    }
     // Function to delete leads
     private async Task CheckDeleteLead(int id)
     {

@@ -41,7 +41,7 @@
                             <button class="edit-note" @onclick="@(() => ShowEditNoteForm(note.id))">Edit</button>
                         </td>
                         <td>
-                            <button class="delete-note" @onclick="@(() => DeleteNote(note.id))">Delete</button>
+                            <button class="delete-note" @onclick="@(() => ConfirmDeleteNote(note.id))">Delete</button>
                         </td>
                     </tr>
                     }
@@ -71,19 +71,41 @@
 
 }
 
+@if (showingConfirmDeleteNote) {
+
+    <ConfirmDeleteNote
+        OnNo="CancelDeleteNote"
+        OnYes="DeleteNote" />
+
+}
+
 @functions{
 
     note newNote;
     note editNote;
+    int deleteNoteID;
     bool showingCreateNoteForm;
     bool showingEditNoteForm;
+    bool showingConfirmDeleteNote;
 
     // DELETE NOTE ---------------------------------------------------------------
 
-    // Function to delete notes
-    private async Task DeleteNote(int id)
+    private async Task ConfirmDeleteNote(int id)
     {
-        database.DeleteNote(id);
+        deleteNoteID = id;
+        showingConfirmDeleteNote = true;
+    }
+
+    // Function to delete notes
+    private async Task DeleteNote()
+    {
+        database.DeleteNote(deleteNoteID);
+        showingConfirmDeleteNote = false;
+    }
+
+    void CancelDeleteNote()
+    {
+        showingConfirmDeleteNote = false;
     }
 
     // CREATE NOTE ---------------------------------------------------------------
