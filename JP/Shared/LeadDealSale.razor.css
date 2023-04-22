@@ -1,4 +1,4 @@
-﻿.header {
+.header {
     background-color: #f7f7f7;
     font-size: 60px;
     border-bottom: 0;
@@ -13,7 +13,7 @@ html, body {
 table {
     border-collapse: collapse;
     width: 100%;
-  align-items:center;
+    align-items:center;
     margin-right: 500px;
 }
 

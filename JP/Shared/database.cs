@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
@@ -627,6 +627,66 @@ namespace JP.Shared
             return;
         }
 
+        // Function to edit client
+        public static void EditClient(int clientID, string email, string fName, string lName, decimal phone, string catID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "UPDATE Client SET Email=@email, fName=@fName, lName=@lName, PhoneNum=@phone, CatagoryID=@catID WHERE ClientID=@clientID;";
+
+                    // Convert catID into integer
+                    int intCatID;
+                    switch(catID)
+                    {
+                        case "Restaurants & Quick-Serve Restaurants": 
+                            intCatID = 6; 
+                            break;
+						case "Retail":
+							intCatID = 2;
+							break;
+						case "Professional Services":
+							intCatID = 3;
+							break;
+						case "Personal Services":
+							intCatID = 4;
+							break;
+						case "Construction":
+							intCatID = 1;
+							break;
+						case "Business to Business":
+							intCatID = 5;
+							break;
+                        default:
+                            intCatID = 7;
+                            break;
+					}
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@email", email);
+                        command.Parameters.AddWithValue("@fName", fName);
+                        command.Parameters.AddWithValue("@lName", lName);
+                        command.Parameters.AddWithValue("@phone", phone);
+                        command.Parameters.AddWithValue("@catID", intCatID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
         // Function to delete lead using the clientID as input
         public static void DeleteLead(int clientID)
         {
@@ -635,7 +695,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "DELETE FROM Client WHERE clientID=@clientID;";
+                    var query = "DELETE FROM Client WHERE ClientID=@clientID; DELETE FROM Deal WHERE ClientID=@clientid;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -688,7 +748,7 @@ namespace JP.Shared
             Console.ReadLine();
             return meetings;
         }
-
+        
         public static List<sale> GetSales(string searchTerm = "")
         {
             List<sale> sales = new List<sale>();
@@ -731,7 +791,7 @@ namespace JP.Shared
             Console.ReadLine();
             return sales;
         }
-
+        
         public static List<note> GetNotes(int employeeID = 0, string searchTerm = "") // Specify the employeeID parameter to receive notes from a specific employee
         {
             List<note> notes = new List<note>();
