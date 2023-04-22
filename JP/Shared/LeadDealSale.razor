@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 @page "/leaddealsale"
 
@@ -7,16 +7,9 @@
 <main>
     <div class="content">
         <div class="header" style="left: -10%">
-            <h1>Sales</h1>
+            <h1>Lead-Deal-Sale Lifecycle</h1>
         </div>
         <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 235%; left: -10%">
-            <div>
-                <form class="form-inline">
-                    <div class="form-group col-md-6" style="float:right">
-                        <input type="search" id="query" name="q" placeholder="Search...">
-                    </div>
-                </form>
-            </div>
             <table class="table table-sm table-bordered">
                 <tr>
                     <th>Lead</th>
@@ -26,9 +19,9 @@
                 @foreach (leaddealsale lds in database.GetLeadDealSales())
                 {
                     <tr>
-                        <td>Join date: @lds.client.date.ToString("MM/dd/yyyy")<br>Lead name: @lds.client.firstName @lds.client.lastName<br>Company name: @lds.client.companyID<br>Assigned to employee: @lds.client.employeeID</td>
-                        <td>Deal date: @lds.deal.date.ToString("MM/dd/yyyy")<br>Deal category: @lds.deal.categoryID<br>Product: @lds.deal.productID</td>
-                        <td>Sale date: @lds.sale.date.ToString("MM/dd/yyyy")<br>Product sold: @lds.sale.productName</td>
+                        <td>Lead name: @lds.leadName<br>Company name: @lds.leadCompanyName<br>Join date: @lds.leadJoinDate.ToString("MM/dd/yyyy")<br>Assigned to employee: @lds.leadEmployeeName</td>
+                        <td>Deal category: @lds.dealCategoryName<br>Product: @lds.dealProductName<br>Deal date: @lds.dealDate.ToString("MM/dd/yyyy")</td>
+                        <td>Product sold: @lds.saleProductName<br>Sale date: @lds.saleDate.ToString("MM/dd/yyyy")<br></td>
                     </tr>
                 }
             </table>
