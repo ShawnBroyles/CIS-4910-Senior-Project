@@ -11,10 +11,9 @@ html, body {
 }
 
 table {
+    table-layout: fixed;
     border-collapse: collapse;
-    width: 150%;
-  align-items:center;
-    margin-right: 500px;
+    width: 110%;
 }
 
     table td {
@@ -63,7 +62,7 @@ form {
     background-color: #f6f7fa;
     position: absolute;
     top: -50px;
-    right: -50%;
+    right: -10%;
     width: 50%;
     height: 44px;
     border: 1px solid;

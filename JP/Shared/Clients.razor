@@ -44,7 +44,7 @@
                         <td>@clt.phoneNumber</td>
                         <td>@clt.categoryID</td>
                         <td>
-                            <button class="edit-client" @onclick="@(() => ShowEditClientForm(clt.id, clt.firstName, clt.lastName, clt.email, clt.phoneNumber, clt.categoryID))">Edit</button>
+                            <button class="edit-client" @onclick="@(() => ShowEditClientForm(clt.id, clt.firstName, clt.lastName, clt.email, clt.phoneNumber, clt.categoryID, clt.joinDate))">Edit</button>
                         </td>
                         <td>
                             <button class="remove-client" @onclick="@(() => ConfirmRemoveClient(clt.id))">Remove</button>
@@ -108,9 +108,9 @@
     // EDIT CLIENT ---------------------------------------------------------------
 
     // Function to show edit client form
-    void ShowEditClientForm(int id, string fName, string lName, string email, decimal phone, string catID)
+    void ShowEditClientForm(int id, string fName, string lName, string email, decimal phone, string catID, DateTime joinDate)
     {
-        editClient = new client(id, email, fName, lName, "", phone, 1, catID);
+        editClient = new client(id, email, fName, lName, "", phone, 1, catID, joinDate);
         showingEditClientForm = true;
     }
 
