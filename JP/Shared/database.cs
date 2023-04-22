@@ -474,13 +474,55 @@ namespace JP.Shared
             Console.ReadLine();
             return accounts;
         }
-
-        public static List<client> GetLeads()
+        /*
+        public static List<client> GetLeads(string searchTerm = "")
         {
-            return GetClients(6); // 6 is the employee ID foreign key for the leads
+            return GetClients(6, searchTerm); // 6 is the employee ID foreign key for the leads
         }
+        */
+		public static List<client> GetLeads(string searchTerm = "")
+		{
+			List<client> clients = new List<client>();
+			try
+			{
+				var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+				using (SqlConnection connection = new SqlConnection(connectionString))
+				{
+					var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID where EmpID=6;";
+					if (searchTerm != "")
+					{
+						query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+														   "client.fName LIKE '%" + searchTerm + "%' OR client.lName LIKE '%" + searchTerm + "%' OR " +
+															"client.PhoneNum LIKE '%" + searchTerm + "%' OR client.EmpID LIKE '%" + searchTerm + "%' OR " +
+															"company.CompanyName LIKE '%" + searchTerm + "%' OR client.CatagoryID LIKE '%" + searchTerm + "%' AND EmpID=6;";
+					}
 
-        public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
+					using (SqlCommand command = new SqlCommand(query, connection))
+					{
+						connection.Open();
+						using (SqlDataReader reader = command.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								// Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date
+								clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8)));
+							}
+						}
+					}
+					clients.RemoveAll(p => p.employeeID != 6);
+					connection.Close();
+					return clients;
+				}
+			}
+			catch (SqlException e)
+			{
+				Console.WriteLine(e.ToString());
+			}
+			Console.ReadLine();
+			return clients;
+		}
+
+		public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
         {
             List<client> clients = new List<client>();
             try
