@@ -8,9 +8,6 @@
 
 
 <main>
-    <div class="new-client mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">
-        <div class="new-client-text">New Client</div>
-    </div>
     <div class ="content">
         <div class="header" style="left: -10%">
             <h1>Clients</h1>
@@ -47,11 +44,7 @@
                         <td>@clt.phoneNumber</td>
                         <td>@clt.categoryID</td>
                         <td>
-                            <div class="edit-client">Edit
-                                <form id="edit" method="post" asp-page-handler="Edit">
-                                    <button type="submit" name="edit-client" value="@clt.id"></button>
-                                </form>
-                            </div>
+                            <button class="edit-client" @onclick="@(() => ShowEditClientForm(clt.id, clt.firstName, clt.lastName, clt.email, clt.phoneNumber, clt.categoryID, clt.joinDate))">Edit</button>
                         </td>
                         <td>
                             <button class="remove-client" @onclick="@(() => ConfirmRemoveClient(clt.id))">Remove</button>
@@ -73,12 +66,25 @@
 
 }
 
+@if (showingEditClientForm)
+{
+
+    <EditClientForm
+        Client="editClient"
+        OnCancel="CancelEditClient"
+        OnSave="SaveEditClient" />
+
+}
+
 @functions {
 
     // REMOVE CLIENT ---------------------------------------------------------------
 
     bool showingConfirmRemoveClient;
+    bool showingEditClientForm;
     int clientID;
+    client editClient;
+
 
     // Function to confirm client removal
     private async Task ConfirmRemoveClient (int id)
@@ -97,6 +103,28 @@
     {
         database.RemoveClient(clientID);
         showingConfirmRemoveClient = false;
+    }
+
+    // EDIT CLIENT ---------------------------------------------------------------
+
+    // Function to show edit client form
+    void ShowEditClientForm(int id, string fName, string lName, string email, decimal phone, string catID, DateTime joinDate)
+    {
+        editClient = new client(id, email, fName, lName, "", phone, 1, catID, joinDate);
+        showingEditClientForm = true;
+    }
+
+    // Function to cancel client edit
+    void CancelEditClient()
+    {
+        showingEditClientForm = false;
+    }
+
+    // Function to save editted client
+    private async Task SaveEditClient()
+    {
+        database.EditClient(editClient.id, editClient.email, editClient.firstName, editClient.lastName, editClient.phoneNumber, editClient.categoryID);
+        showingEditClientForm = false;
     }
 
 }
