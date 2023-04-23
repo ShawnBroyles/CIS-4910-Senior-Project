@@ -65,7 +65,7 @@
         string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
         string login = "";
 
-        if (username != null)
+        if (username != "")
         {
             login = "Logout";
         }
@@ -78,7 +78,8 @@
 
     public async void Logout()
     {
-        
+        await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserID");
+        await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserName");
     }
 }
 

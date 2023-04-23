@@ -68,17 +68,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-            string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
+        string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
 
-            if (username != null)
-            {
-                welcome = "Welcome back, " + username + "!";
-            }
-            else
-            {
-                welcome = "Welcome";
-            }
-            await JsRuntime.InvokeVoidAsync("setText", divWelcome, welcome);
+        if (username != "")
+        {
+            welcome = "Welcome back, " + username + "!";
         }
+        else
+        {
+            welcome = "Welcome";
+        }
+        await JsRuntime.InvokeVoidAsync("setText", divWelcome, welcome);
     }
 }
