@@ -41,4 +41,11 @@
             return "";
         }
     }
+        window.DeleteCookie = {
+        DeleteCookie: function (name) {
+            document.cookie = name + "=; expires=" + new Date + "; path=/";
+        }
+    }
+
 </script>
+<script>window.setText = (el, text) => el.innerText = text;</script>

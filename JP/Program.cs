@@ -4,12 +4,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using System.Net;
 
-static void InitializeLeadsThread()
-{
-    // Repeatable job that download new leads from the Google Form once every hour
-    new Thread(threads.ImportNewLeads);
-}
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -35,7 +29,5 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-
-InitializeLeadsThread();
 
 app.Run();

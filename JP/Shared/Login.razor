@@ -30,7 +30,8 @@
             if (acc != null)
             {
                 // Write to browser cookie for the logged-in user
-                await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUser", acc.id, DateTime.Now.AddMinutes(1));
+                await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUserID", acc.id, DateTime.Now.AddDays(1));
+                await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUserName", acc.username, DateTime.Now.AddDays(1));
                 msg = "Welcome, " + acc.username + "!";
             }
             else

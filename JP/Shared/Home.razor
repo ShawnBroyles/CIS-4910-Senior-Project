@@ -7,7 +7,7 @@
 <main>
     <div class ="content">
         <div class="header">
-            <h1>Welcome</h1>
+            <h1 @ref="divWelcome">Welcome</h1>
             <br />
         </div>
    
@@ -58,5 +58,27 @@
             </div>
         </div>
     </div>
-
 </main>
+
+@using Microsoft.JSInterop
+@inject IJSRuntime JsRuntime;
+@code {
+    private ElementReference divWelcome;
+    private string welcome = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+            string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
+
+            if (username != null)
+            {
+                welcome = "Welcome back, " + username + "!";
+            }
+            else
+            {
+                welcome = "Welcome";
+            }
+            await JsRuntime.InvokeVoidAsync("setText", divWelcome, welcome);
+        }
+    }
+}

@@ -13,25 +13,25 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
             <NavLink class="nav-link" href="products">
-                <span class="oi oi-products" aria-hidden="true"></span> Products
+                <span class="oi oi-products" aria-hidden="true"></span>Products
             </NavLink>
             <NavLink class="nav-link" href="leaddealsale">
-                <span class="oi oi-leaddealsale" aria-hidden="true"></span> Lead-Deal-Sale Lifecycle
+                <span class="oi oi-leaddealsale" aria-hidden="true"></span>Lead-Deal-Sale Lifecycle
             </NavLink>
             <NavLink class="nav-link" href="leads">
-                <span class="oi oi-pleads" aria-hidden="true"></span> Potential Leads
+                <span class="oi oi-pleads" aria-hidden="true"></span>Potential Leads
             </NavLink>
             <NavLink class="nav-link" href="sales">
-                <span class="oi oi-pleads" aria-hidden="true"></span> Sales
+                <span class="oi oi-pleads" aria-hidden="true"></span>Sales
             </NavLink>
             <NavLink class="nav-link" href="clients">
-                <span class="oi oi-clients" aria-hidden="true"></span> Clients
+                <span class="oi oi-clients" aria-hidden="true"></span>Clients
             </NavLink>
             <NavLink class="nav-link" href="notes">
-                <span class="oi oi-notes" aria-hidden="true"></span> Notes
+                <span class="oi oi-notes" aria-hidden="true"></span>Notes
             </NavLink>
             <NavLink class="nav-link" href="login">
-                <span class="oi oi-login" aria-hidden="true"></span> Login
+                <span class="oi oi-login" aria-hidden="true"></span><span @ref="divLogin" @onclick="Logout">Login</span>
             </NavLink>
         </div>
 
@@ -40,3 +40,31 @@
         </article>
     </main>
 </div>
+
+@using Microsoft.JSInterop
+@inject IJSRuntime JsRuntime;
+@code {
+    private ElementReference divLogin;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
+        string login = "";
+
+        if (username != null)
+        {
+            login = "Logout";
+        }
+        else
+        {
+            login = "Login";
+        }
+        await JsRuntime.InvokeVoidAsync("setText", divLogin, login);
+    }
+
+    public async void Logout()
+    {
+        await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserID");
+        await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserName");
+    }
+}
