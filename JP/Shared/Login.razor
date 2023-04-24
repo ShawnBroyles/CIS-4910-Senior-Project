@@ -25,13 +25,14 @@
         Tuple<bool, string> password = database.inputSanitization(args.Password);
         if (username.Item1 && password.Item1)
         {
-            account acc = database.GetUser(username.Item2, password.Item2);
+            account acc = database.AttemptLogin(username.Item2, password.Item2);
 
             if (acc != null)
             {
                 // Write to browser cookie for the logged-in user
                 await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUserID", acc.id, DateTime.Now.AddDays(1));
                 await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUserName", acc.username, DateTime.Now.AddDays(1));
+                await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieLoggedInUserType", acc.type, DateTime.Now.AddDays(1));
                 msg = "Welcome, " + acc.username + "!";
             }
             else
