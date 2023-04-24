@@ -338,9 +338,9 @@ namespace JP.Shared
                     var query = "SELECT * FROM product";
                     if (searchTerm != "")
                     {
-                        query = "SELECT * FROM product WHERE ProductDescription LIKE \'%" + searchTerm + "%\' OR ProductName LIKE  \'%" + searchTerm + "%\' OR " +
-                                                            "ProductID LIKE \'%" + searchTerm + "%' OR ProductPrice LIKE \'%" + searchTerm + "%\' OR " +
-                                                            "CreateDate LIKE \'%" + searchTerm + "%\';";
+                        query = "SELECT * FROM product WHERE ProductDescription LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR ProductName LIKE  \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+                                                            "ProductID LIKE \'%" + searchTerm.Replace("+", " ") + "%' OR ProductPrice LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+                                                            "CreateDate LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -474,13 +474,55 @@ namespace JP.Shared
             Console.ReadLine();
             return accounts;
         }
-
-        public static List<client> GetLeads()
+        /*
+        public static List<client> GetLeads(string searchTerm = "")
         {
-            return GetClients(6); // 6 is the employee ID foreign key for the leads
+            return GetClients(6, searchTerm); // 6 is the employee ID foreign key for the leads
         }
+        */
+		public static List<client> GetLeads(string searchTerm = "")
+		{
+			List<client> clients = new List<client>();
+			try
+			{
+				var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+				using (SqlConnection connection = new SqlConnection(connectionString))
+				{
+					var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID where EmpID=6;";
+					if (searchTerm != "")
+					{
+						query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+														   "client.fName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.lName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+															"client.PhoneNum LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.EmpID LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+															"company.CompanyName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.CatagoryID LIKE \'%" + searchTerm.Replace("+", " ") + "%\' AND EmpID=6;";
+					}
 
-        public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
+					using (SqlCommand command = new SqlCommand(query, connection))
+					{
+						connection.Open();
+						using (SqlDataReader reader = command.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								// Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date
+								clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8)));
+							}
+						}
+					}
+					clients.RemoveAll(p => p.employeeID != 6);
+					connection.Close();
+					return clients;
+				}
+			}
+			catch (SqlException e)
+			{
+				Console.WriteLine(e.ToString());
+			}
+			Console.ReadLine();
+			return clients;
+		}
+
+		public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
         {
             List<client> clients = new List<client>();
             try
@@ -492,9 +534,9 @@ namespace JP.Shared
                     if (searchTerm != "")
                     {
                         query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
-                                                           "client.fName LIKE '%" + searchTerm + "%' OR client.lName LIKE '%" + searchTerm + "%' OR " +
-                                                            "client.PhoneNum LIKE '%" + searchTerm + "%' OR client.EmpID LIKE '%" + searchTerm + "%' OR " +
-                                                            "client.CompanyID LIKE '%" + searchTerm + "%' OR client.CatagoryID LIKE '%" + searchTerm + "%';";
+                                                           "client.fName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.lName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+                                                            "client.PhoneNum LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.EmpID LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+                                                            "company.CompanyName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.CatagoryID LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -762,8 +804,8 @@ namespace JP.Shared
                     if (searchTerm != "")
                     {
                         query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE " +
-                                                         "Sale.SaleDate LIKE '%" + searchTerm + "%' OR Company.CompanyName LIKE '%" + searchTerm + "%' OR Client.fName LIKE '%" + searchTerm + "%' OR Client.lName LIKE '%" + searchTerm + "%' OR " +
-                                                         "Employee.fName LIKE '%" + searchTerm + "%' OR Employee.lName LIKE '%" + searchTerm + "%' OR Product.ProductName LIKE '%" + searchTerm + "%' OR Catagory.CatagoryName LIKE '%" + searchTerm + "%';";
+                                                         "Sale.SaleDate LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Company.CompanyName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR CONCAT(Client.fName, ' ', Client.lName) LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
+                                                         "CONCAT(Employee.fName, ' ', Employee.lName) LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Product.ProductName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Catagory.CatagoryName LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
                     }
                     
 
@@ -803,8 +845,8 @@ namespace JP.Shared
                     var query = "SELECT * FROM notes;";
                     if (searchTerm != "")
                     {
-                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm + "%\' OR Contents LIKE  \'%" + searchTerm + "%\'" +
-                                                           " OR CatagoryID LIKE \'%" + searchTerm + "%\';";
+                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Contents LIKE  \'%" + searchTerm.Replace("+", " ") + "%\'" +
+                                                           " OR CatagoryID LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))

@@ -37,7 +37,7 @@
                 @{
                     string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
                     string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
-                    foreach (client lead in database.GetLeads())
+                    foreach (client lead in database.GetLeads(searchTerm))
                     {
                         <tr>
                             <td>@lead.companyID</td>
