@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Net.NetworkInformation;
 using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
@@ -8,6 +10,7 @@ using JP.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.JSInterop;
 using Microsoft.VisualBasic;
 using Radzen.Blazor;
 using static Azure.Core.HttpHeader;
@@ -93,11 +96,13 @@ namespace JP.Shared
         public int id { get; set; }
         public string username { get; set; }
         public string password { get; set; }
-        public account(int _id, string _username, string _password)
+        public string type { get; set; }
+        public account(int _id, string _username, string _password, string _type)
         {
             id = _id;
             username = _username;
             password = _password;
+            type = _type;
         }
     }
 
@@ -280,7 +285,7 @@ namespace JP.Shared
             return Tuple.Create(Regex.Match(input, "^[a-zA-Z0-9\\s\\n_.]+$").Success, input);
         }
 
-        public static account GetUser(string username, string password)
+        public static account AttemptLogin(string username, string password)
         {
             List<account> accounts = GetAccounts();
             foreach (account acc in accounts)
@@ -459,7 +464,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Account ID, Username, Password
-                                accounts.Add(new account(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
+                                accounts.Add(new account(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3)));
                             }
                         }
                     }

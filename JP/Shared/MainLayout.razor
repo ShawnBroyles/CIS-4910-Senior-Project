@@ -9,26 +9,29 @@
             <div class="container-fluid" style="float:right;">
                 <a class="navbar-brand" href=""><img src="images/logo.png" width="180" Fluid="true" alt="J.P. Morgan"></a>
             </div>
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="@navLinkSales" href="" Match="NavLinkMatch.All">
+                <span class="oi @homeIcon" aria-hidden="true"></span><span @ref="divHome"></span>
             </NavLink>
-            <NavLink class="nav-link" href="products">
-                <span class="oi oi-products" aria-hidden="true"></span>Products
+            <NavLink class="@navLinkSales" href="products">
+                <span class="oi oi-products" aria-hidden="true"></span><span @ref="divProducts"></span>
             </NavLink>
-            <NavLink class="nav-link" href="leaddealsale">
-                <span class="oi oi-leaddealsale" aria-hidden="true"></span>Lead-Deal-Sale Lifecycle
+            <NavLink class="@navLinkSales" href="leaddealsale">
+                <span class="oi oi-leaddealsale" aria-hidden="true"></span><span @ref="divLeadDealSale"></span>
             </NavLink>
-            <NavLink class="nav-link" href="leads">
-                <span class="oi oi-pleads" aria-hidden="true"></span>Potential Leads
+            <NavLink class="@navLinkSales" href="leads">
+                <span class="oi oi-pleads" aria-hidden="true"></span><span @ref="divNewLeads"></span>
             </NavLink>
-            <NavLink class="nav-link" href="sales">
-                <span class="oi oi-pleads" aria-hidden="true"></span>Sales
+            <NavLink class="@navLinkSales" href="sales">
+                <span class="oi oi-pleads" aria-hidden="true"></span><span @ref="divSales"></span>
             </NavLink>
-            <NavLink class="nav-link" href="clients">
-                <span class="oi oi-clients" aria-hidden="true"></span>Clients
+            <NavLink class="@navLinkSales" href="clients">
+                <span class="oi oi-clients" aria-hidden="true"></span><span @ref="divClients"></span>
             </NavLink>
-            <NavLink class="nav-link" href="notes">
-                <span class="oi oi-notes" aria-hidden="true"></span>Notes
+            <NavLink class="@navLinkSales" href="notes">
+                <span class="oi oi-notes" aria-hidden="true"></span><span @ref="divNotes"></span>
+            </NavLink>
+            <NavLink class="@navLinkAdmin" href="admin">
+                <span class="oi oi-admin" aria-hidden="true"></span><span @ref="divAdmin"></span>
             </NavLink>
             <NavLink class="nav-link" href="login">
                 <span class="oi oi-login" aria-hidden="true"></span><span @ref="divLogin" @onclick="Logout">Login</span>
@@ -44,21 +47,77 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JsRuntime;
 @code {
+    private ElementReference divHome;
+    private ElementReference divProducts;
+    private ElementReference divLeadDealSale;
+    private ElementReference divNewLeads;
+    private ElementReference divSales;
+    private ElementReference divClients;
+    private ElementReference divNotes;
+    private ElementReference divAdmin;
     private ElementReference divLogin;
+
+    public string homeIcon = "";
+    public string navLinkSales = "";
+    public string navLinkAdmin = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        Task.Delay(500);
+
         string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
+        string userType = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserType");
+
+        bool userIsSalesperson = userType.IndexOf("sales") != -1;
+        bool userIsAdmin = userType.IndexOf("admin") != -1;
+
+        string home = "";
+        string products = "";
+        string leadDealSale = "";
+        string newLeads = "";
+        string sales = "";
+        string clients = "";
+        string notes = "";
+        string admin = "";
         string login = "";
 
+        // Displaying navigation links depending if the user is logged in and the user's type of account
         if (username != "")
         {
+            homeIcon = "oi-home";
+            home = " Home";
             login = "Logout";
+
+            if (userIsSalesperson || userIsAdmin)
+            {
+                navLinkSales = "nav-link"; // Displaying navigation links for sales agents
+                products = "Products";
+                leadDealSale = "Lead-Deal-Sale Lifecycle";
+                newLeads = "New Leads";
+                sales = "Sales";
+                clients = "Clients";
+                notes = "Notes";
+            }
+            if (userIsAdmin)
+            {
+                navLinkAdmin = "nav-link"; // Displaying navigation link for admins
+                admin = "Admin";
+            }
         }
         else
         {
+            homeIcon = "";
             login = "Login";
         }
+        
+        await JsRuntime.InvokeVoidAsync("setText", divHome, home);
+        await JsRuntime.InvokeVoidAsync("setText", divProducts, products);
+        await JsRuntime.InvokeVoidAsync("setText", divLeadDealSale, leadDealSale);
+        await JsRuntime.InvokeVoidAsync("setText", divNewLeads, newLeads);
+        await JsRuntime.InvokeVoidAsync("setText", divSales, sales);
+        await JsRuntime.InvokeVoidAsync("setText", divClients, clients);
+        await JsRuntime.InvokeVoidAsync("setText", divNotes, notes);
+        await JsRuntime.InvokeVoidAsync("setText", divAdmin, admin);
         await JsRuntime.InvokeVoidAsync("setText", divLogin, login);
     }
 
@@ -66,5 +125,6 @@
     {
         await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserID");
         await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserName");
+        await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserType");
     }
 }

@@ -10,33 +10,43 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="@navLinkSales" href="" Match="NavLinkMatch.All">
+                <span class="oi @homeIcon" aria-hidden="true"></span><span @ref="divHome"></span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="products" Match="NavLinkMatch.All">
-                <span class="oi oi-products" aria-hidden="true"></span>Products
+            <NavLink class="@navLinkSales" href="products" Match="NavLinkMatch.All">
+                <span class="oi oi-products" aria-hidden="true"></span><span @ref="divProducts"></span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="leaddealsale" Match="NavLinkMatch.All">
-                <span class="oi oi-leaddealsale" aria-hidden="true"></span>Lead-Deal-Sale Lifecycle
+            <NavLink class="@navLinkSales" href="leaddealsale" Match="NavLinkMatch.All">
+                <span class="oi oi-leaddealsale" aria-hidden="true"></span><span @ref="divLeadDealSale"></span>
            </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-pleads" aria-hidden="true"></span>Potential Leads
+            <NavLink class="@navLinkSales" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-pleads" aria-hidden="true"></span><span @ref="divNewLeads"></span>
+            </NavLink>
+        </div>
+                <div class="nav-item px-3">
+            <NavLink class="@navLinkSales" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-sales" aria-hidden="true"></span><span @ref="divSales"></span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-clients" aria-hidden="true"></span>Clients
+            <NavLink class="@navLinkSales" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-clients" aria-hidden="true"></span><span @ref="divClients"></span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="notes" Match="NavLinkMatch.All">
-                <span class="oi oi-notes" aria-hidden="true"></span>Notes
+            <NavLink class="@navLinkSales" href="notes" Match="NavLinkMatch.All">
+                <span class="oi oi-notes" aria-hidden="true"></span><span @ref="divNotes"></span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="@navLinkAdmin" href="admin" Match="NavLinkMatch.All">
+                <span class="oi oi-admin" aria-hidden="true"></span><span @ref="divAdmin"></span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
@@ -58,21 +68,75 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
+    private ElementReference divHome;
+    private ElementReference divProducts;
+    private ElementReference divLeadDealSale;
+    private ElementReference divNewLeads;
+    private ElementReference divSales;
+    private ElementReference divClients;
+    private ElementReference divNotes;
+    private ElementReference divAdmin;
     private ElementReference divLogin;
+
+    public string homeIcon = "";
+    public string navLinkSales = "";
+    public string navLinkAdmin = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
+        string userType = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserType");
+
+        bool userIsSalesperson = userType.IndexOf("sales") != -1;
+        bool userIsAdmin = userType.IndexOf("admin") != -1;
+
+        string home = "";
+        string products = "";
+        string leadDealSale = "";
+        string newLeads = "";
+        string sales = "";
+        string clients = "";
+        string notes = "";
+        string admin = "";
         string login = "";
 
+        // Displaying navigation links depending if the user is logged in and the user's type of account
         if (username != "")
         {
+            homeIcon = "oi-home";
+            home = " Home";
             login = "Logout";
+
+            if (userIsSalesperson || userIsAdmin)
+            {
+                navLinkSales = "nav-link"; // Displaying navigation links for sales agents
+                products = "Products";
+                leadDealSale = "Lead-Deal-Sale Lifecycle";
+                newLeads = "New Leads";
+                sales = "Sales";
+                clients = "Clients";
+                notes = "Notes";
+            }
+            if (userIsAdmin)
+            {
+                navLinkAdmin = "nav-link"; // Displaying navigation link for admins
+                admin = "Admin";
+            }
         }
         else
         {
+            homeIcon = "";
             login = "Login";
         }
+
+        await JsRuntime.InvokeVoidAsync("setText", divHome, home);
+        await JsRuntime.InvokeVoidAsync("setText", divProducts, products);
+        await JsRuntime.InvokeVoidAsync("setText", divLeadDealSale, leadDealSale);
+        await JsRuntime.InvokeVoidAsync("setText", divNewLeads, newLeads);
+        await JsRuntime.InvokeVoidAsync("setText", divSales, sales);
+        await JsRuntime.InvokeVoidAsync("setText", divClients, clients);
+        await JsRuntime.InvokeVoidAsync("setText", divNotes, notes);
+        await JsRuntime.InvokeVoidAsync("setText", divAdmin, admin);
         await JsRuntime.InvokeVoidAsync("setText", divLogin, login);
     }
 
@@ -80,6 +144,7 @@
     {
         await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserID");
         await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserName");
+        await JsRuntime.InvokeAsync<object>("DeleteCookie.DeleteCookie", "cookieLoggedInUserType");
     }
 }
 
