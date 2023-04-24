@@ -177,7 +177,8 @@ namespace JP.Shared
         public string categoryName { get; set; }
         public int clientID { get; set; }
         public int fk_dealID { get; set; }
-        public sale(DateTime _date, string _companyName, string  _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName, int _clientID, int _fk_dealID)
+        public int revenue { get; set; }
+        public sale(DateTime _date, string _companyName, string  _clientfName, string _clientlName, string _employeefName, string _employeelName, string _productName, string _categoryName, int _clientID, int _fk_dealID, int _revenue)
         {
             date = _date;
             companyName = _companyName;
@@ -189,6 +190,7 @@ namespace JP.Shared
             categoryName = _categoryName;
             clientID = _clientID;
             fk_dealID = _fk_dealID;
+            revenue = _revenue;
         }
     }
 
@@ -268,6 +270,7 @@ namespace JP.Shared
         public DateTime dealDate { get; set; }
         public string saleProductName { get; set; }
         public DateTime saleDate { get; set; }
+        public int saleRevenue { get; set; }
         public leaddealsale(sale _sale)
         {
             client lead = database.GetClientFromID(_sale.clientID);
@@ -283,6 +286,7 @@ namespace JP.Shared
             dealDate = deal.date;
             saleProductName = sale.productName;
             saleDate = sale.date;
+            saleRevenue = sale.revenue;
         }
     }
 
@@ -819,11 +823,11 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
+                    var query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID, Sale.SaleRevenue FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
 
                     if (searchTerm != "")
                     {
-                        query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE " +
+                        query = "SELECT Sale.SaleDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID, Sale.fk_DealID, Sale.SaleRevenue FROM Sale INNER JOIN Client on Sale.ClientID = Client.ClientID INNER JOIN Employee on Sale.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Sale.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE " +
                                                          "Sale.SaleDate LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Company.CompanyName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR CONCAT(Client.fName, ' ', Client.lName) LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
                                                          "CONCAT(Employee.fName, ' ', Employee.lName) LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Product.ProductName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Catagory.CatagoryName LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
                     }
@@ -837,7 +841,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Sale Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID, Associated Deal ID
-                                sales.Add(new sale(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8), reader.GetInt32(9)));
+                                sales.Add(new sale(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8), reader.GetInt32(9), reader.GetInt32(10)));
                             }
                         }
                     }
