@@ -36,6 +36,50 @@
             </table>
             <br />
             <br />
+            <br />
+            <br />
+        <div class="header" style="left: -10%">
+            <h1>Inactive Leads</h1>
+        </div>
+            <table class="table table-sm table-bordered">
+                <tr>
+                    <th style="width: 20%;">Company</th>
+                    <th style="width: 20%;">First Name</th>
+                    <th style="width: 20%;">Last Name</th>
+                    <th style="width: 30%;">Email</th>
+                    <th style="width: 15%;">Phone Number</th>
+                    <th style="width: 15%;">Category</th>
+                    <th style="width: 30%;">Recommended Products</th>
+                    <th style="width: 20%;">Reactivate</th>
+
+                </tr>
+                @{
+                    foreach (client inactiveLead in database.GetInactiveLeads())
+                    {
+                        <tr>
+                            <td>@inactiveLead.companyID</td>
+                            <td>@inactiveLead.firstName</td>
+                            <td>@inactiveLead.lastName</td>
+                            <td>@inactiveLead.email</td>
+                            <td>@inactiveLead.phoneNumber</td>
+                            <td>@inactiveLead.categoryID</td>
+                            <td>
+                                @foreach (recommended prod in database.GetRecommendeds(inactiveLead.categoryID))
+                                {
+                                    @prod.productname <br />
+                                }
+                            </td>
+                            <td>
+                                <button class="reactivate-client" @onclick="@(() => database.ReactivateLead(inactiveLead.id))">Reactivate</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+            <br />
+            <br />
+            <br />
+            <br />
             <div>
                 <div style="display:none">@filePath</div>
             </div>
