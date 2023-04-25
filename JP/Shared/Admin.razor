@@ -110,7 +110,11 @@
             // Read a line each time we iterate through this loop
             while (!parser.EndOfData)
             {
-                if ((int)parser.LineNumber < lineContinue)
+                if ((int)parser.LineNumber == -1)
+                {
+                    break;
+                }
+                else if ((int)parser.LineNumber < lineContinue)
                 {
                     fields = parser.ReadFields();
                     continue;

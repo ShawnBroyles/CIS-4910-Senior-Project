@@ -704,6 +704,39 @@ namespace JP.Shared
             return deal;
         }
 
+        public static int GetEmpIDFromAccID(int accID)
+        {
+            int empID = 0;
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT * FROM employee WHERE AccountID='" + accID + "';";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                empID = reader.GetInt32(0);
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return empID;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return empID;
+        }
+
         // Function to remove client from an employee using the clientID as input
         public static void RemoveClient(int clientID)
         {

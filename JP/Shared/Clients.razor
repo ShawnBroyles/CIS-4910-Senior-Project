@@ -92,7 +92,7 @@
     {
         string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
         int userID = Convert.ToInt32(strUserID);
-        return userID;
+        return database.GetEmpIDFromAccID(userID);
     }
 
     // REMOVE CLIENT ---------------------------------------------------------------
