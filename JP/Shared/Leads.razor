@@ -136,7 +136,7 @@
         string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
         int userID = Convert.ToInt32(strUserID);
 
-        database.addClient(addClientID, userID);
+        database.addClient(addClientID, database.GetEmpIDFromAccID(userID));
         showingConfirmAddClientForm = false;
     }
 }
