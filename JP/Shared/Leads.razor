@@ -45,7 +45,7 @@
                             <td>@lead.phoneNumber</td>
                             <td>@lead.categoryID</td>
                             <td>
-                                @foreach (recommended prod in database.GetRecommendeds(lead.categoryID))
+                                @foreach (RecommendedProduct prod in database2.GetRecommendeds(lead.categoryID, lead.companyemployees, lead.companyrevenue))
                                 {
                                     @prod.productname <br />
                                 }
