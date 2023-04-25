@@ -1,6 +1,8 @@
 ﻿@using JP.Shared
+@using Microsoft.JSInterop
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime;
 
 @page "/notes"
 
@@ -28,10 +30,10 @@
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
-                 @{
+                @{
                     string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
                     string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
-                    foreach (note note in database.GetNotes(0, searchTerm))
+                    foreach (note note in database.GetNotes(EmpID, searchTerm))
                     {
                     <tr>
                         <td>@note.name</td>
@@ -83,10 +85,26 @@
 
     note newNote;
     note editNote;
+    int empID;
     int deleteNoteID;
     bool showingCreateNoteForm;
     bool showingEditNoteForm;
     bool showingConfirmDeleteNote;
+
+    public int EmpID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        EmpID = await GetEmpID();
+    }
+
+    // GET EMP ID
+    private async Task<int> GetEmpID()
+    {
+        string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
+        int userID = Convert.ToInt32(strUserID);
+        return userID;
+    }
 
     // DELETE NOTE ---------------------------------------------------------------
 
@@ -113,7 +131,7 @@
     // Function to show create note form
     void ShowCreateNoteForm()
     {
-        newNote = new note(0, 3, "", "", 7);
+        newNote = new note(0, EmpID, "", "", 7);
         showingCreateNoteForm = true;
     }
 
