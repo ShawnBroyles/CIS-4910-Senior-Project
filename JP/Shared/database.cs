@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.VisualBasic;
 using Radzen.Blazor;
 using static Azure.Core.HttpHeader;
+using static JP.Shared.leaddealsale;
 
 namespace JP.Shared
 {
@@ -287,6 +288,15 @@ namespace JP.Shared
             saleProductName = sale.productName;
             saleDate = sale.date;
             saleRevenue = sale.revenue;
+        }
+    }
+
+    public class auditLogEntry
+    {
+        public string entry { get; set; }
+        public auditLogEntry(string _entry)
+        {
+            entry = _entry;
         }
     }
 
@@ -990,6 +1000,68 @@ namespace JP.Shared
             }
             Console.ReadLine();
             return;
+        }
+
+        // Function to create new lead audit log entry
+        public static void CreateAuditLogEntry(string newLeadEntry)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "INSERT INTO AuditLog(NewLeadsOutput) VALUES (\'" + newLeadEntry + "\');";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+        // Function to retrieve new lead audit log entries
+        public static List<auditLogEntry> GetAuditLogEntries()
+        {
+            List<auditLogEntry> auditLogEntries = new List<auditLogEntry>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT * FROM AuditLog;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // Task ID, Name, Employee ID
+                                auditLogEntries.Add(new auditLogEntry(reader.GetString(0)));
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return auditLogEntries;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return auditLogEntries;
         }
 
         public static List<task> GetTasks(int userID)

@@ -78,7 +78,7 @@
         Paused = false;
 
         // Start automatically importing new leads into the system
-        ImportNewLeads();
+        await ImportNewLeads();
     }
 
     private async Task Stop()
@@ -132,49 +132,72 @@
                     int counter = 0;
                     client lead = new client();
                     company company = new company();
-                    foreach (string field in fields)
+                    int newLeads = 0;
+                    List<string> newLeadsInfo = new List<string>();
+                    try
                     {
-                        switch (counter)
+                        foreach (string field in fields)
                         {
-                            // Determining which field we're reading from the row
-                            case 0:
-                                lead.joinDate = Convert.ToDateTime(field);
-                                break;
-                            case 1:
-                                lead.firstName = Convert.ToString(field);
-                                break;
-                            case 2:
-                                lead.lastName = Convert.ToString(field);
-                                break;
-                            case 3:
-                                lead.email = Convert.ToString(field);
-                                break;
-                            case 4:
-                                lead.phoneNumber = Convert.ToInt32(field);
-                                break;
-                            case 5:
-                                company.name = Convert.ToString(field);
-                                break;
-                            case 6:
-                                company.categoryID = Convert.ToInt32(field);
-                                break;
-                            case 7:
-                                company.revenue = Convert.ToInt32(field);
-                                break;
-                            case 8:
-                                company.employees = Convert.ToInt32(field);
-                                // Insert lead and company into database after the last item
-                                lead.employeeID = 6; // New Lead
-                                int newCompanyID = database.CreateCompany(company);
-                                database.CreateLead(lead, newCompanyID);
-                                break;
-                            default:
-                                break;
+                            switch (counter)
+                            {
+                                // Determining which field we're reading from the row
+                                case 0:
+                                    lead.joinDate = Convert.ToDateTime(field);
+                                    break;
+                                case 1:
+                                    lead.firstName = Convert.ToString(field);
+                                    break;
+                                case 2:
+                                    lead.lastName = Convert.ToString(field);
+                                    break;
+                                case 3:
+                                    lead.email = Convert.ToString(field);
+                                    break;
+                                case 4:
+                                    lead.phoneNumber = Convert.ToInt32(field);
+                                    break;
+                                case 5:
+                                    company.name = Convert.ToString(field);
+                                    break;
+                                case 6:
+                                    company.revenue = Convert.ToInt32(field);
+                                    break;
+                                case 7:
+                                    company.employees = Convert.ToInt32(field);
+                                    break;
+                                case 8:
+                                    string categoryName = Convert.ToString(field);
+                                    // Using nested ternary statements to find the category ID for the lead's selection
+                                    company.categoryID = categoryName.IndexOf("Construction") != -1 ? 1 :
+                                    categoryName.IndexOf("Retail") != -1 ? 2 :
+                                    categoryName.IndexOf("Professional Services") != -1 ? 3 :
+                                    categoryName.IndexOf("Personal Services") != -1 ? 4 :
+                                    categoryName.IndexOf("Business to Business") != -1 ? 5 :
+                                    categoryName.IndexOf("Restaurants & Quick-Serve Restaurants") != -1 ? 6 :
+                                    categoryName.IndexOf("Other") != -1 ? 7 : 7;
+                                    // Insert lead and company into database after the last item
+                                    lead.employeeID = 6; // New Lead
+                                    int newCompanyID = database.CreateCompany(company);
+                                    database.CreateLead(lead, newCompanyID);
+                                    newLeadsInfo.Add($"{lead.firstName} {lead.lastName} represents \"{company.name}\". Company category = {categoryName}, revenue = {company.revenue}, number of employees = {company.revenue}");
+                                    newLeads++;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            counter++;
                         }
-                        counter++;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                    }
+                    database.CreateAuditLogEntry("" + DateTime.Now.ToString() + " - " + newLeads.ToString() + " were added to the database.");
+                    foreach(string newLeadInfo in newLeadsInfo)
+                    {
+                        database.CreateAuditLogEntry("    + " + newLeadInfo);
                     }
                 }
-
             }
         }
 
@@ -183,6 +206,6 @@
 
         // Recursion
         if (Running)
-            ImportNewLeads();
+            await ImportNewLeads();
     }
 }
