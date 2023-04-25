@@ -116,8 +116,10 @@ namespace JP.Shared
         public int employeeID { get; set; }
         public string categoryID { get; set; }
         public int inactive { get; set; }
+        public int companyemployees { get; set; }
+        public int companyrevenue { get; set; }
         public client() { }
-        public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID, DateTime _joinDate, int _inactive)
+        public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID, DateTime _joinDate, int _inactive, int _companyemployees, int _companyrevenue)
         {
             id = _id;
             email = _email;
@@ -129,6 +131,8 @@ namespace JP.Shared
             categoryID = _categoryID;
             joinDate = _joinDate;
             inactive = _inactive;
+            companyemployees = _companyemployees;
+            companyrevenue = _companyrevenue;
         }
         // Overloaded function to be referenced with code that has specific functionality
         public client(int _id, string _email, string _firstName, string _lastName, string _companyID, decimal _phoneNumber, int _employeeID, string _categoryID, DateTime _joinDate)
@@ -519,10 +523,10 @@ namespace JP.Shared
 				var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 				using (SqlConnection connection = new SqlConnection(connectionString))
 				{
-					var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID where EmpID=6;";
+					var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive, Company.employees, Company.Companyrevenue From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID where EmpID=6;";
 					if (searchTerm != "")
 					{
-						query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+						query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive, Company.employees, Company.Companyrevenue From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
 														   "client.fName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.lName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
 															"client.PhoneNum LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.EmpID LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
 															"company.CompanyName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.CatagoryID LIKE \'%" + searchTerm.Replace("+", " ") + "%\' AND EmpID=6;";
@@ -535,8 +539,8 @@ namespace JP.Shared
 						{
 							while (reader.Read())
 							{
-								// Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date, Client Inactive
-								clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9)));
+								// Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date, Client Inactive, Company employees, Company revenue
+								clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9), reader.GetInt32(10), reader.GetInt32(11)));
 							}
 						}
 					}
@@ -591,10 +595,10 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive, Company.employees, Company.Companyrevenue From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID;";
                     if (searchTerm != "")
                     {
-                        query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
+                        query = "SELECT client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive, Company.employees, Company.Companyrevenue From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID WHERE client.ClientID LIKE '%" + searchTerm + "%' OR client.Email LIKE  '%" + searchTerm + "%' OR " +
                                                            "client.fName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.lName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
                                                             "client.PhoneNum LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.EmpID LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR " +
                                                             "company.CompanyName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR client.CatagoryID LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
@@ -608,7 +612,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date
-                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9)));
+                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9), reader.GetInt32(10), reader.GetInt32(11)));
                             }
                         }
                     }
@@ -642,7 +646,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID " +
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive, Company.employees, Company.Companyrevenue From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID " +
                         "WHERE ClientID='"+clientID+"';";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -653,7 +657,7 @@ namespace JP.Shared
                             while (reader.Read())
                             {
                                 // Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date, Client Inactive
-                                client = new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9));
+                                client = new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9), reader.GetInt32(10), reader.GetInt32(11));
                             }
                         }
                     }
@@ -1161,39 +1165,7 @@ namespace JP.Shared
             return deals;
         }
 
-        public static List<recommended> GetRecommendeds(string catname)
-        {
-            List<recommended> recommendeds = new List<recommended>();
-            try
-            {
-                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    var query = "SELECT product.ProductName FROM Product INNER JOIN sale ON Product.ProductID = sale.ProductID INNER JOIN client ON client.clientid = sale.clientid INNER JOIN Catagory ON Catagory.CatagoryID = Client.CatagoryID WHERE Catagory.CatagoryName LIKE @Category;";
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        connection.Open();
-                        command.Parameters.AddWithValue("@Category", "%" + catname + "%");
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                recommendeds.Add(new recommended(reader.GetString(0)));
-                            }
-                        }
-                    }
-                    connection.Close();
-                    return recommendeds;
-                }
-            }
-            catch (SqlException e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            Console.ReadLine();
-            return recommendeds;
-        }
+    
 
         public static List<leaddealsale> GetLeadDealSales()
         {
