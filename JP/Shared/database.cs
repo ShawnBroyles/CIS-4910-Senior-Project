@@ -781,7 +781,7 @@ namespace JP.Shared
             return;
         }
 
-        public static List<meeting> GetMeetings()
+        public static List<meeting> GetMeetings(int userID)
         {
             List<meeting> meetings = new List<meeting>();
             try
@@ -789,7 +789,8 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "select meeting.meetingid, meeting.meetingtime, meeting.meetingdate, meeting.clientid, meeting.empid, client.fname, company.companyname from meeting inner join client on meeting.clientid = client.ClientID inner join company on client.companyid = company.companyID;";
+                    var query = "SELECT meeting.meetingid, meeting.meetingtime, meeting.meetingdate, meeting.clientid, meeting.empid, client.fname, company.companyname from meeting inner join client on meeting.clientid = client.ClientID inner join company on client.companyid = company.companyID " +
+                                "WHERE meeting.EmpID=" + userID + ";";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -991,7 +992,7 @@ namespace JP.Shared
             return;
         }
 
-        public static List<task> GetTasks()
+        public static List<task> GetTasks(int userID)
         {
             List<task> tasks = new List<task>();
             try
@@ -999,7 +1000,7 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM task;";
+                    var query = "SELECT * FROM task WHERE task.EmpID=" + userID + ";";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
