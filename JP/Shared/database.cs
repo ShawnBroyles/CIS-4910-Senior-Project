@@ -544,7 +544,36 @@ namespace JP.Shared
 			return clients;
 		}
 
-		public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
+        public static void addClient(int clientID, int empID)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "UPDATE Client SET EmpID=@empID WHERE ClientID=@clientID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@empID", empID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+
+        public static List<client> GetClients(int employeeID = 0, string searchTerm = "") // Default value of 0 to receive all clients (non-leads) in the system
         {
             List<client> clients = new List<client>();
             try
