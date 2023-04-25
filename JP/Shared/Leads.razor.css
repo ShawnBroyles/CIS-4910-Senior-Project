@@ -104,11 +104,11 @@ input {
     -webkit-transition: opacity .3s ease-in-out;
 }
 
-.delete-lead {
+.remove-lead {
     margin: auto;
     background-color: red;
     height: 40px;
-    width: 40px;
+    width: 60px;
     border: 1px solid black;
     padding: 5px;
     justify-content: center;
@@ -119,7 +119,7 @@ input {
     box-sizing: border-box;
 }
 
-    .delete-lead:hover {
+    .remove-lead:hover {
         opacity: 60%;
         transition: opacity .3s ease-in-out;
         -moz-transition: opacity .3s ease-in-out;

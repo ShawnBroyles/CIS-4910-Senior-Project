@@ -554,6 +554,84 @@ namespace JP.Shared
 			return clients;
 		}
 
+        public static List<client> GetInactiveLeads()
+        {
+            List<client> clients = new List<client>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "select client.ClientID, client.email, client.fName, client.lName, company.CompanyName, client.PhoneNum, client.EmpID, Catagory.CatagoryName, Client.JoinDate, Client.inactive From company inner join client on Company.CompanyID = client.CompanyID inner join catagory on client.CatagoryID = Catagory.CatagoryID where EmpID=6;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // Client ID, Email, First Name, Last Name, Company Name, Phone Number, Employee ID, Category Name, Client Join Date, Client Inactive
+                                clients.Add(new client(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDecimal(5), reader.GetInt32(6), reader.GetString(7), reader.GetDateTime(8), reader.GetInt32(9)));
+                            }
+                        }
+                    }
+                    clients.RemoveAll(p => p.inactive == 0);
+                    connection.Close();
+                    return clients;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return clients;
+        }
+
+        // Function to set leads as inactive using the clientID as input
+        public static void InactivateLead(int clientID)
+        {
+            UpdateLeadInactive(clientID, 1);
+            return;
+        }
+
+        // Function to set leads as active using the clientID as input
+        public static void ReactivateLead(int clientID)
+        {
+            UpdateLeadInactive(clientID, 0);
+            return;
+        }
+
+        // Function to hide or unhide leads using the clientID as input
+        public static void UpdateLeadInactive(int clientID, int inactiveStatus)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "UPDATE Client SET inactive=@inactiveStatus WHERE ClientID=@clientID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@inactiveStatus", inactiveStatus);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
         public static void addClient(int clientID, int empID)
         {
             try
@@ -777,34 +855,6 @@ namespace JP.Shared
                         command.Parameters.AddWithValue("@lName", lName);
                         command.Parameters.AddWithValue("@phone", phone);
                         command.Parameters.AddWithValue("@catID", intCatID);
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
-                    connection.Close();
-                    return;
-                }
-            }
-            catch (SqlException e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            Console.ReadLine();
-            return;
-        }
-
-        // Function to hide leads using the clientID as input
-        public static void InactivateLead(int clientID)
-        {
-            try
-            {
-                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    var query = "UPDATE Client SET inactive=1 WHERE ClientID=@clientID;";
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@clientID", clientID);
                         connection.Open();
                         command.ExecuteNonQuery();
                     }
