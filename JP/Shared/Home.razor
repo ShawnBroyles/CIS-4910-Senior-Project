@@ -75,7 +75,7 @@
             {
                 tasks += "<dt>" + task.name + "</dt><br>";
             }
-            @foreach (sale sale in database.GetSales())
+            foreach (sale sale in database.GetSales())
             {
                 salesFeed += "<dt>Date: " + sale.date.ToString("MM/dd/yyyy") + "<br>Employee: " + sale.employeefName + " " + sale.employeelName + "<br>Client: " + sale.clientfName + " " + sale.clientlName + "<br>Company: " + sale.companyName + "<br>Product: " + sale.productName + "</dt><br>";
             }

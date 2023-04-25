@@ -12,27 +12,9 @@
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
-            <NavLink class="nav-link" href="products">
-                <span class="oi oi-products" aria-hidden="true"></span>Products
-            </NavLink>
-            <NavLink class="nav-link" href="leaddealsale">
-                <span class="oi oi-leaddealsale" aria-hidden="true"></span>Lead-Deal-Sale Lifecycle
-            </NavLink>
-            <NavLink class="nav-link" href="leads">
-                <span class="oi oi-pleads" aria-hidden="true"></span>Potential Leads
-            </NavLink>
-            <NavLink class="nav-link" href="sales">
-                <span class="oi oi-pleads" aria-hidden="true"></span>Sales
-            </NavLink>
-            <NavLink class="nav-link" href="clients">
-                <span class="oi oi-clients" aria-hidden="true"></span>Clients
-            </NavLink>
-            <NavLink class="nav-link" href="notes">
-                <span class="oi oi-notes" aria-hidden="true"></span>Notes
-            </NavLink>
-            <NavLink class="nav-link" href="login">
-                <span class="oi oi-login" aria-hidden="true"></span><span @ref="divLogin" @onclick="Logout">Login</span>
-            </NavLink>
+            <span @ref="divSalesAgent"></span>
+            <span @ref="divAdmin"></span>
+            <span @ref="divLogin"></span>
         </div>
 
         <article class="content px-4">
@@ -44,22 +26,62 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JsRuntime;
 @code {
+    private ElementReference divSalesAgent;
+    private ElementReference divAdmin;
     private ElementReference divLogin;
+
+    private string navSales = "";
+    private string navAdmin = "";
+    private string navLogin = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
-        string login = "";
+        string userName = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
+        string userType = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserType");
+        string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
 
-        if (username != "")
+        if (userType.IndexOf("sales") != -1 || userType.IndexOf("admin") != -1)
         {
-            login = "Logout";
+            navSales = "<a class=\"nav-link\" href=\"products\">" +
+                "<span class=\"oi oi-products\" aria-hidden=\"true\"></span>Products" +
+            "</a>" +
+            "<a class=\"nav-link\" href=\"leaddealsale\">" +
+                "<span class=\"oi oi-leaddealsale\" aria-hidden=\"true\"></span>Lead-Deal-Sale Lifecycle" +
+            "</a>" +
+            "<a class=\"nav-link\" href=\"leads\">" +
+                "<span class=\"oi oi-pleads\" aria-hidden=\"true\"></span>Potential Leads" +
+            "</a>" +
+            "<a class=\"nav-link\" href=\"sales\">" +
+                "<span class=\"oi oi-pleads\" aria-hidden=\"true\"></span>Sales" +
+            "</a>" +
+            "<a class=\"nav-link\" href=\"clients\">" +
+                "<span class=\"oi oi-clients\" aria-hidden=\"true\"></span>Clients" +
+            "</a>" +
+            "<a class=\"nav-link\" href=\"notes\">" +
+                "<span class=\"oi oi-notes\" aria-hidden=\"true\"></span>Notes" +
+            "</a>";
+
+            navLogin = "<a class=\"nav-link\" href=\"login\">" +
+                "<span class=\"oi oi-login\" aria-hidden=\"true\"></span><span @onclick=\"Logout\">Logout</span>" +
+            "</a>";
+
+            if (userType.IndexOf("admin") != -1)
+            {
+                navAdmin = "<a class=\"nav-link\" href=\"admin\">" +
+                    "<span class=\"oi oi-admin\" aria-hidden=\"true\"></span>Admin" +
+                "</a>";
+            }
         }
         else
         {
-            login = "Login";
+            navLogin = "<a class=\"nav-link\" href=\"login\">" +
+                "<span class=\"oi oi-login\" aria-hidden=\"true\"></span>Login" +
+            "</a>";
         }
-        await JsRuntime.InvokeVoidAsync("setText", divLogin, login);
+
+        await JsRuntime.InvokeVoidAsync("setHTML", divSalesAgent, navSales);
+        await JsRuntime.InvokeVoidAsync("setHTML", divAdmin, navAdmin);
+        await JsRuntime.InvokeVoidAsync("setHTML", divLogin, navLogin);
     }
 
     public async void Logout()
