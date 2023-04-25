@@ -20,12 +20,12 @@
             </div>
             <table class ="table table-sm table-bordered">
                 <tr>
-                    <th>Date</th>
-                    <th>Company</th>
-                    <th>Client</th>
-                    <th>Employee</th>
-                    <th>Product</th>
-                    <th>Category</th>
+                    <th style ="width: 10%;">Date</th>
+                    <th style="width: 20%;">Company</th>
+                    <th style="width: 15%;">Client</th>
+                    <th style="width: 15%;">Employee</th>
+                    <th style="width: 20%;">Product</th>
+                    <th style="width: 15%;">Category</th>
                 </tr>
                 <!--  <tr>
                     @foreach (product prod in database.GetProducts()){
@@ -50,10 +50,8 @@
                         <tr>
                             <td>@sale.date.ToString("MM/dd/yyyy")</td>
                             <td>@sale.companyName</td>
-                            <td>@sale.clientfName <br> @sale.clientlName</td>
-                            <td>
-                                @sale.employeefName<br>
-                                @sale.employeelName</td>
+                            <td>@sale.clientfName @sale.clientlName</td>
+                            <td>@sale.employeefName @sale.employeelName</td>
                             <td>@sale.productName</td>
                             <td>@sale.categoryName</td>
                         </tr>
