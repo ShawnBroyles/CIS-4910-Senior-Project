@@ -65,19 +65,33 @@
         if (username != "" && strUserID != "")
         {
             int userID = Convert.ToInt32(strUserID);
+
+            int meetingCounter = 0;
+            int taskCounter = 0;
             welcome = "<h1>Welcome back, " + username + "!</h1>";
 
             foreach (meeting meeting in database.GetMeetings(userID))
             {
                 meetings += "<dt>" + meeting.time + " " + meeting.company + " " + meeting.clientName + "</dt><br>";
+                meetingCounter++;
             }
             foreach (task task in database.GetTasks(userID))
             {
                 tasks += "<dt>" + task.name + "</dt><br>";
+                taskCounter++;
             }
-            @foreach (sale sale in database.GetSales())
+            foreach (sale sale in database.GetSales())
             {
                 salesFeed += "<dt>Date: " + sale.date.ToString("MM/dd/yyyy") + "<br>Employee: " + sale.employeefName + " " + sale.employeelName + "<br>Client: " + sale.clientfName + " " + sale.clientlName + "<br>Company: " + sale.companyName + "<br>Product: " + sale.productName + "</dt><br>";
+            }
+
+            if (meetingCounter == 0)
+            {
+                meetings += "<i>No meetings found for user \"" + username + "\".</i>";
+            }
+            if (taskCounter == 0)
+            {
+                tasks += "<i>No tasks found for user \"" + username + "\".</i>";
             }
         }
         else
