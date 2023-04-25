@@ -5,24 +5,19 @@
 <PageTitle>Admin</PageTitle>
 
 <main>
+    <button class="new-user mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">New User</button>
     <div class="content">
-        <div class="header">
+        <div class="header" style="left: -10%">
             <h1>Manage Users</h1>
         </div>
-        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 85px;">
-            <div>
-                <br />
-                <div class="new-user mx-auto">
-                    <div class="new-user-text">New User</div>
-                </div>
-            </div>
+        <div class="table-responsive-sm tablealign" style="margin:auto; position:absolute; top: 235%; left: -10%">
             <table class="table table-sm table-bordered">
                 <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
+                    <th style="width: 15%;">ID</th>
+                    <th style="width: 40%;">Username</th>
+                    <th style="width: 40%;">Password</th>
+                    <th style="width: 10%;">Edit</th>
+                    <th style="width: 10%;">Delete</th>
                 </tr>
                 @foreach (account acc in database.GetAccounts())
                 {
@@ -31,14 +26,10 @@
                         <td>@acc.username</td>
                         <td>@acc.password</td>
                         <td>
-                            <div class="edit-user mx-auto">
-                                <div class="edit-user-text">Edit</div>
-                            </div>
+                            <button class="edit-user">Edit</button>
                         </td>
                         <td>
-                            <div class="delete-user mx-auto">
-                                <div class="delete-user-text">Delete</div>
-                            </div>
+                            <button class="delete-user">Delete</button>
                         </td>
                     </tr>
                 }
