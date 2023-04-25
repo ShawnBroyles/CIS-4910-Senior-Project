@@ -66,6 +66,9 @@
     </div>
 </main>
 
+@using Microsoft.JSInterop
+@inject IJSRuntime JsRuntime;
+
 @if (showingConfirmDeleteLead)
 {
     
@@ -75,22 +78,22 @@
 
 }
 
+@if (showingConfirmAddClientForm)
+{
+    <ConfirmAddClientForm
+        OnNo="CancelAddClient"
+        OnYes="AddClient" />
+}
+
 @functions {
+
+    bool showingConfirmDeleteLead;
+    bool showingConfirmAddClientForm;
+    int leadID;
+    int addClientID;
 
     // DELETE LEAD ---------------------------------------------------------------
 
-    bool showingConfirmDeleteLead;
-    int leadID;
-
-    private async Task ShowAddLead()
-    {
-        NavigationManager.NavigateTo("/add-lead");
-    }
-
-    private async Task ShowAddClientForm(int id)
-    {
-        
-    }
     // Function to delete leads
     private async Task CheckDeleteLead(int id)
     {
@@ -112,6 +115,30 @@
         showingConfirmDeleteLead = false;
     }
 
-    // CREATE LEAD ---------------------------------------------------------------
+    // ADD LEAD TO CLIENT LIST ---------------------------------------------------------------
 
+    private async Task ShowAddLead()
+    {
+        NavigationManager.NavigateTo("/add-lead");
+    }
+
+    private async Task ShowAddClientForm(int id)
+    {
+        addClientID = id;
+        showingConfirmAddClientForm = true;
+    }
+
+    void CancelAddClient()
+    {
+        showingConfirmAddClientForm = false;
+    }
+
+    private async Task AddClient()
+    {
+        string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
+        int userID = Convert.ToInt32(strUserID);
+
+        database.addClient(addClientID, userID);
+        showingConfirmAddClientForm = false;
+    }
 }
