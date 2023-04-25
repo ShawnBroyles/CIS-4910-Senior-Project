@@ -1076,7 +1076,7 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Task ID, Name, Employee ID
+                                // Audit log entry
                                 auditLogEntries.Add(new auditLogEntry(reader.GetString(0)));
                             }
                         }
