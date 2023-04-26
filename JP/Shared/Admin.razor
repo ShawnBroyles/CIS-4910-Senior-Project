@@ -26,10 +26,10 @@
                         <td>@acc.username</td>
                         <td>@acc.password</td>
                         <td>
-                            <button class="edit-user">Edit</button>
+                            <button class="edit-user" @onclick="@(() => ShowEditAccountForm(acc.id, acc.username, acc.password, acc.type))">Edit</button>
                         </td>
                         <td>
-                            <button class="delete-user">Delete</button>
+                            <button class="delete-user" @onclick="@(() => ConfirmDeleteAccount(acc.id))">Delete</button>
                         </td>
                     </tr>
                 }
@@ -99,3 +99,74 @@
     </div>
 </main>
 
+@if (showingConfirmDeleteAccount)
+{
+
+    <ConfirmDeleteAccount 
+        OnNo="CancelDeleteAccount"
+        OnYes="ConfirmDeleteAccount" />
+
+}
+
+@if (showingEditAccountForm)
+{
+
+    <EditAccountForm
+        Account="editAccount"
+        OnCancel="CancelEditAccount"
+        OnSave="SaveEditAccount" />
+
+}
+
+@functions {
+
+    // DELETE ACCOUNT ---------------------------------------------------------------
+
+    bool showingConfirmDeleteAccount;
+    bool showingEditAccountForm;
+    int accountID;
+    account editAccount;
+
+
+    // Function to confirm account deletion
+    private async Task ConfirmDeleteAccount(int id)
+    {
+        // Confirm if they would like to delete account
+        accountID = id;
+        showingConfirmDeleteAccount = true;
+    }
+
+    void CancelDeleteAccount()
+    {
+        showingConfirmDeleteAccount = false;
+    }
+
+    void ConfirmDeleteAccount()
+    {
+        database.DeleteAccount(accountID);
+        showingConfirmDeleteAccount = false;
+    }
+
+    // EDIT ACCOUNT ---------------------------------------------------------------
+
+    // Function to show edit account form
+    void ShowEditAccountForm(int id, string username, string password, string accountType)
+    {
+        editAccount = new account(id, username, password, accountType);
+        showingEditAccountForm = true;
+    }
+
+    // Function to cancel account edit
+    void CancelEditAccount()
+    {
+        showingEditAccountForm = false;
+    }
+
+    // Function to save editted acccount
+    private async Task SaveEditAccount()
+    {
+        database.EditAccount(editAccount.id, editAccount.username, editAccount.password, editAccount.type);
+        showingEditAccountForm = false;
+    }
+
+}
