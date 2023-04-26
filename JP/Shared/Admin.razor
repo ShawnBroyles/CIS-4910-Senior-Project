@@ -5,7 +5,7 @@
 <PageTitle>Admin</PageTitle>
 
 <main>
-    <button class="new-user mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">New User</button>
+    <button class="new-user mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%" @onclick="@(() => ShowCreateAccountForm())">New User</button>
     <div class="content">
         <div class="header" style="left: -10%">
             <h1>Manage Users</h1>
@@ -118,15 +118,43 @@
 
 }
 
+@if (showingCreateAccountForm)
+{
+    <CreateAccountForm 
+        Account="newAccount"
+        OnCancel="CancelCreateAccount"
+        OnSave="SaveCreateAccount" />
+}
+
 @functions {
 
-    // DELETE ACCOUNT ---------------------------------------------------------------
-
+    bool showingCreateAccountForm;
     bool showingConfirmDeleteAccount;
     bool showingEditAccountForm;
     int accountID;
     account editAccount;
+    account newAccount;
 
+    // CREATE ACCOUNT ---------------------------------------------------------------
+
+    private async Task ShowCreateAccountForm()
+    {
+        newAccount = new account(accountID, "", "", "");
+        showingCreateAccountForm = true;
+    }
+
+    void CancelCreateAccount()
+    {
+        showingCreateAccountForm = false;
+    }
+
+    void SaveCreateAccount()
+    {
+        database.CreateAccount(newAccount.username, newAccount.password, newAccount.type);
+        showingCreateAccountForm = false;
+    }
+
+    // DELETE ACCOUNT ---------------------------------------------------------------
 
     // Function to confirm account deletion
     private async Task ConfirmDeleteAccount(int id)

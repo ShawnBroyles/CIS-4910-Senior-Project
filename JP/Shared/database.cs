@@ -569,7 +569,36 @@ namespace JP.Shared
 			return;
 		}
 
-		public static List<client> GetLeads(string searchTerm = "")
+        public static void CreateAccount(string username, string password, string accountType)
+        {
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "INSERT INTO Account(Username, Password, AccountType) VALUES (@username, @password, @accountType);";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@username", username);
+                        command.Parameters.AddWithValue("@password", password);
+                        command.Parameters.AddWithValue("@accountType", accountType);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return;
+        }
+
+        public static List<client> GetLeads(string searchTerm = "")
 		{
 			List<client> clients = new List<client>();
 			try
