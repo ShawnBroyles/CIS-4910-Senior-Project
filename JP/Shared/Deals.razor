@@ -45,10 +45,10 @@
                             <td>@deal.clientfName @deal.clientlName</td>
                             <td>@deal.productName</td>
                             <td>@deal.categoryName</td>
-                            <!--------------<td>
-                                <button class="edit-deal" @onclick="@(() => ShowEditDealForm())">Edit</button>
-                            </td>
                             <td>
+                                <button class="edit-deal" @onclick="@(() => ShowEditDealForm(deal.employeefName, deal.employeelName, deal.date, deal.clientfName, deal.clientlName, deal.productName))">Edit</button>
+                            </td>
+                                   <!-------------- <td>
                                 <button class="delete-deal" @onclick="@(() => ConfirmDeleteDeal(deal.id))">Delete</button>
                             </td>
                             <td>
@@ -72,17 +72,17 @@
         OnSave="SaveCreateDeal"/>
 
 }
-<!-------------
-@if (showingEditNoteForm)
+
+@if (showingEditDealForm)
 {
 
-    <EditNoteForm 
-        Note="editNote"
-        OnCancel="CancelEditNote"
-        OnSave="SaveEditNote" />
+    <EditDealForm 
+        Deal="editDeal"
+        OnCancel="CancelEditDeal"
+        OnSave="SaveEditDeal" />
 
 }
-
+<!-------------
 @if (showingConfirmDeleteNote) {
 
     <ConfirmDeleteNote
@@ -96,6 +96,7 @@
 
     deal newDeal;
     deal editDeal;
+    DateTime oldDate;
     int deleteDealID;
     bool showingCreateDealForm;
     bool showingEditDealForm;
@@ -103,7 +104,7 @@
 
     public int EmpID { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         EmpID = await GetEmpID();
     }
@@ -118,21 +119,21 @@
     /*
     // DELETE DEAL ---------------------------------------------------------------
 
-    private async Task ConfirmDeleteDeal(int id)
-    {
+        private async Task ConfirmDeleteDeal(int id)
+        {
         deleteDealID = id;
-        showingConfirmDeleteDeal = true;
+    showingConfirmDeleteDeal = true;
     }
 
     // Function to delete deals
-    private async Task DeleteDeal()
-    {
+        private async Task DeleteDeal()
+        {
         database.DeleteDeal(deleteDealID);
-        showingConfirmDeleteDeal = false;
+    showingConfirmDeleteDeal = false;
     }
 
     void CancelDeleteDeal()
-    {
+        {
         showingConfirmDeleteDeal = false;
     }
     */
@@ -157,13 +158,14 @@
         database.CreateDeal(EmpID, newDeal.date, newDeal.clientfName, newDeal.clientlName, newDeal.productName);
         showingCreateDealForm = false;
     }
-    /*
+
     // EDIT DEAL ---------------------------------------------------------------
 
     // Function to show edit deal form
-    void ShowEditDealForm(int id)
+    void ShowEditDealForm(string employeefName, string employeelName, DateTime date, string fname, string lname, string prodName)
     {
-        editDeal = new deal();
+        oldDate = date;
+        editDeal = new deal(date, "", fname, lname, employeefName, employeelName, prodName, "", 1);
         showingEditDealForm = true;
     }
 
@@ -176,8 +178,7 @@
     // Function to save editted deal
     private async Task SaveEditDeal()
     {
-        database.EditDeal();
+        database.EditDeal(EmpID, editDeal.date, oldDate, editDeal.clientfName, editDeal.clientlName, editDeal.productName);
         showingEditDealForm = false;
     }
-    */
 }

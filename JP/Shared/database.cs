@@ -687,7 +687,7 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Deal Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID
+                                // Deal ID, Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID
                                 deal = new deal(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8));
                             }
                         }
@@ -1212,7 +1212,69 @@ namespace JP.Shared
             return deals;
         }
 
-		public static List<recommended> GetRecommendeds(string catname)
+        public static List<deal> EditDeal(int empID, DateTime newDate, DateTime oldDate, string fName, string lName, string prodName)
+        {
+            List<deal> deals = new List<deal>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", fName);
+                        command.Parameters.AddWithValue("@lName", lName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", prodName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the CategoryID
+                    string categoryIDQuery = "SELECT CatagoryID FROM Product WHERE ProductID=@productID;";
+                    int categoryID;
+                    using (SqlCommand command = new SqlCommand(categoryIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@productID", productID);
+                        categoryID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Insert into Deal table
+                    var query = "UPDATE Deal SET DealDate=@newDate, ClientID=@clientID, ProductID=@prodID, CatagoryID=@categoryID WHERE (DealDate=@oldDate AND EmpID=@empID);";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@newDate", newDate);
+                        command.Parameters.AddWithValue("@oldDate", oldDate);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.Parameters.AddWithValue("@categoryID", categoryID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return deals;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return deals;
+        }
+
+        public static List<recommended> GetRecommendeds(string catname)
         {
             List<recommended> recommendeds = new List<recommended>();
             try
