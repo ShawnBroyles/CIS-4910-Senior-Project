@@ -17,7 +17,7 @@
             <br />
             <br />
             <br />
-            <div class="card w-30" style="float:left; position:relative; margin-left:5%">
+            <div class="card w-30" style="float:left; position:relative; margin-left:5%" hidden="@HideCard">
                 <div class="card-body">
                     <h2 class="card-title text-center">My Meetings</h2>
                     <dl @ref="divMeetings">
@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <div class="card w-25" style="float:left; position:relative; margin-left:5%">
+            <div class="card w-25" style="float:left; position:relative; margin-left:5%" hidden="@HideCard">
                 <div class="card-body">
                     <h2 class="card-title text-center">My Tasks</h2>
                     <dl @ref="divTasks">
@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <div class="card w-35" style="float:left; position:relative; margin-left:5%">
+            <div class="card w-35" style="float:left; position:relative; margin-left:5%" hidden="@HideCard">
                 <div class="card-body">
                     <h2 class="card-title text-center">Sales Feed</h2>
                     <dl @ref="divSalesFeed">
@@ -57,6 +57,8 @@
     private string tasks = "<hr>";
     private string salesFeed = "<hr>";
 
+    private bool HideCard { get; set; } = true;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         string username = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserName");
@@ -64,6 +66,15 @@
 
         if (username != "" && strUserID != "")
         {
+            if (HideCard)
+            {
+                // change the visibility of the control to hidden
+                HideCard = false;
+                // re-render the component
+                StateHasChanged();
+            }
+
+
             int userID = Convert.ToInt32(strUserID);
 
             int meetingCounter = 0;
@@ -96,9 +107,6 @@
         }
         else
         {
-            meetings += "<i>You are not logged in.</i>";
-            tasks += "<i>You are not logged in.</i>";
-            salesFeed += "<i>You are not logged in.</i>";
             welcome = "<h1>Welcome, guest.</h1><h4><a href='/login'>Login</a> if you are a sales agent at JPMC. If not, then <a href='/add-lead'>click here</a> if you are interested in JP Morgan services.</h4>";
         }
 
