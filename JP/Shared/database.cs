@@ -1118,33 +1118,6 @@ namespace JP.Shared
             return;
         }
 
-        // Function to create new lead audit log entry
-        public static void CreateAuditLogEntry(string newLeadEntry)
-        {
-            try
-            {
-                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    var query = "INSERT INTO AuditLog(NewLeadsOutput) VALUES (\'" + newLeadEntry + "\');";
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
-                    connection.Close();
-                    return;
-                }
-            }
-            catch (SqlException e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            Console.ReadLine();
-            return;
-        }
-
         // Function to retrieve new lead audit log entries
         public static List<auditLogEntry> GetAuditLogEntries()
         {
@@ -1261,70 +1234,6 @@ namespace JP.Shared
             }
             leaddealsales.Sort((lds1, lds2) => DateTime.Compare(lds2.saleDate, lds1.saleDate));
             return leaddealsales;
-        }
-
-        public static void CreateLead(client lead, int newCompanyID)
-        {
-            try
-            {
-                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    var query = "INSERT INTO Client(Email, fName, lName, CompanyID, PhoneNum, EmpID, CatagoryID, JoinDate) VALUES (@Email, @fName, @lName, @CompanyID, @PhoneNum, @EmpID, @CatagoryID, @JoinDate);";
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@fName", lead.firstName);
-                        command.Parameters.AddWithValue("@lName", lead.lastName);
-                        command.Parameters.AddWithValue("@CompanyID", newCompanyID);
-                        command.Parameters.AddWithValue("@PhoneNum", lead.phoneNumber);
-                        command.Parameters.AddWithValue("@EmpID", lead.employeeID);
-                        command.Parameters.AddWithValue("@CatagoryID", lead.categoryID);
-                        command.Parameters.AddWithValue("@JoinDate", lead.joinDate);
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
-                    connection.Close();
-                    return;
-                }
-            }
-            catch (SqlException e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            Console.ReadLine();
-            return;
-        }
-
-        public static int CreateCompany(company company)
-        {
-            try
-            {
-                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    var query = "INSERT INTO Company(CompanyName, CompanyRevenue, CatagoryID, employees) VALUES (@CompanyName, @CompanyRevenue, @CatagoryID, @employees);";
-                    int newCompanyID;
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@CompanyName", company.name);
-                        command.Parameters.AddWithValue("@CompanyRevenue", company.revenue);
-                        command.Parameters.AddWithValue("@CatagoryID", company.categoryID);
-                        command.Parameters.AddWithValue("@employee", company.employees);
-                        connection.Open();
-                        newCompanyID = (int)command.ExecuteScalar();
-                    }
-                    connection.Close();
-                    return newCompanyID;
-                }
-            }
-            catch (SqlException e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            Console.ReadLine();
-            return 0;
         }
 
     }
