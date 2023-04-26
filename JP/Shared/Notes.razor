@@ -38,9 +38,9 @@
                     <tr>
                         <td>@note.name</td>
                         <td>@note.contents</td>
-                        <td>@note.categoryID</td>
+                        <td>@note.categoryName</td>
                         <td>
-                            <button class="edit-note" @onclick="@(() => ShowEditNoteForm(note.id, note.name, note.contents, note.categoryID))">Edit</button>
+                            <button class="edit-note" @onclick="@(() => ShowEditNoteForm(note.id, note.name, note.contents, note.categoryID, note.categoryName))">Edit</button>
                         </td>
                         <td>
                             <button class="delete-note" @onclick="@(() => ConfirmDeleteNote(note.id))">Delete</button>
@@ -131,7 +131,7 @@
     // Function to show create note form
     void ShowCreateNoteForm()
     {
-        newNote = new note(0, EmpID, "", "", 7);
+        newNote = new note(0, EmpID, "", "", 7,"");
         showingCreateNoteForm = true;
     }
 
@@ -151,9 +151,9 @@
     // EDIT NOTE ---------------------------------------------------------------
 
     // Function to show edit note form
-    void ShowEditNoteForm(int id, string name, string contents, int catID)
+    void ShowEditNoteForm(int id, string name, string contents, int catID, string catname)
     {
-        editNote = new note(id, 0, name, contents, catID);
+        editNote = new note(id, 0, name, contents, catID, catname);
         showingEditNoteForm = true;
     }
 

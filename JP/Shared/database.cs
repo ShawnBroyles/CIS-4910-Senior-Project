@@ -206,13 +206,15 @@ namespace JP.Shared
         public string name { get; set; }
         public string contents { get; set; }
         public int categoryID { get; set; }
-        public note(int _id, int _employeeID, string _name, string _contents, int _categoryID)
+        public string categoryName { get; set; }
+        public note(int _id, int _employeeID, string _name, string _contents, int _categoryID, string _categoryName)
         {
             id = _id;
             employeeID = _employeeID;
             name = _name;
             contents = _contents;
             categoryID = _categoryID;
+            categoryName = _categoryName;
         }
     }
 
@@ -993,10 +995,10 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM notes;";
+                    var query = "Select Notes.NoteId, Notes.EmpID, Notes.NoteName, Notes.Contents, Catagory.CatagoryID, Catagory.CatagoryName FROM Notes INNER JOIN Catagory on Notes.CatagoryID = Catagory.CatagoryID;";
                     if (searchTerm != "")
                     {
-                        query = "SELECT * FROM notes WHERE NoteName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Contents LIKE  \'%" + searchTerm.Replace("+", " ") + "%\'" +
+                        query = "Select Notes.NoteId, Notes.EmpID, Notes.NoteName, Notes.Contents, Catagory.CatagoryID, Catagory.CatagoryName FROM Notes INNER JOIN Catagory on Notes.CatagoryID = Catagory.CatagoryID WHERE NoteName LIKE \'%" + searchTerm.Replace("+", " ") + "%\' OR Contents LIKE  \'%" + searchTerm.Replace("+", " ") + "%\'" +
                                                            " OR CatagoryID LIKE \'%" + searchTerm.Replace("+", " ") + "%\';";
                     }
 
@@ -1007,8 +1009,8 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Note ID, Employee ID, Name, Contents, Category ID
-                                notes.Add(new note(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3), reader.GetInt32(4)));
+                                // Note ID, Employee ID, Name, Contents, Category ID, Category Name
+                                notes.Add(new note(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3), reader.GetInt32(4), reader.GetString(5)));
                             }
                         }
                     }
