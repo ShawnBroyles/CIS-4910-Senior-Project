@@ -22,24 +22,26 @@ Christopher Luevano
 
 Shawn Broyles
 
-## Instructor
+## Course Instructor
 
 Dr. Ken Christensen
 
-Professor and Associate Chair of Undergraduate Affairs
+- Professor and Associate Chair of Undergraduate Affairs
 
-Computer Science and Engineering
+- Computer Science and Engineering
 
-University of South Florida
+- University of South Florida
 
-Tampa, FL 33620
-
-## JPMC Contact
+## JPMC Contacts
 
 Madhavi Othuluru
 
-Executive Director
+- Executive Director
 
-Technology and Operations Product
+- Technology and Operations Product
 
-JPMorgan Chase & Co.
+- JPMorgan Chase & Co.
+
+Jeff Doromal
+
+- J.P. Morgan Chase
