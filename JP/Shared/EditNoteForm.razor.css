@@ -1,27 +1,4 @@
-﻿/*
-.dialog-container {
-    position: absolute;
-    border:solid;
-    color: black;
-    width: 60%;
-    height: 1400%;
-    background-color: lightgray;
-    padding:20px 20px 20px 20px;
-    top: 500%;
-    left: 20%;
-}
-.dialog-title {
-    text-align: center;
-    color: black;
-}
-
-.dialog-body {
-    color: black;
-    font-size: 16px;
-}
-*/
-
-.dialog-container {
+﻿.dialog-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -71,7 +48,8 @@
     }
 
     .dialog-body select,
-    .dialog-body input[type="text"] {
+    .dialog-body input[type="text"],
+    .dialog-body textarea {
         border: none;
         background-color: #f2f2f2;
         padding: 10px;
@@ -81,7 +59,8 @@
     }
 
         .dialog-body select:focus,
-        .dialog-body input[type="text"]:focus {
+        .dialog-body input[type="text"]:focus,
+        .dialog-body textarea:focus {
             outline: none;
             box-shadow: 0 0 5px #1E90FF;
         }
