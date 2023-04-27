@@ -311,6 +311,40 @@ namespace JP.Shared
             return Tuple.Create(Regex.Match(input, "^[a-zA-Z0-9\\s\\n_.]+$").Success, input);
         }
 
+        public static int GetEmpID(int accountID)
+        {
+            int empID = 1;
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT EmpID FROM Employee WHERE AccountID=@accountID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@accountID", accountID);
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                empID = reader.GetInt32(0);
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return empID;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return empID;
+        }
+
         public static account AttemptLogin(string username, string password)
         {
             List<account> accounts = GetAccounts();
@@ -505,12 +539,7 @@ namespace JP.Shared
             Console.ReadLine();
             return accounts;
         }
-        /*
-        public static List<client> GetLeads(string searchTerm = "")
-        {
-            return GetClients(6, searchTerm); // 6 is the employee ID foreign key for the leads
-        }
-        */
+        
 		public static List<client> GetLeads(string searchTerm = "")
 		{
 			List<client> clients = new List<client>();
@@ -897,7 +926,91 @@ namespace JP.Shared
             Console.ReadLine();
             return sales;
         }
-        
+
+        public static List<sale> CreateSale(int empID, DateTime date, string fName, string lName, string prodName, int revenue)
+        {
+            List<sale> sales = new List<sale>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", fName);
+                        command.Parameters.AddWithValue("@lName", lName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", prodName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the CategoryID
+                    string categoryIDQuery = "SELECT CatagoryID FROM Product WHERE ProductID=@productID;";
+                    int categoryID;
+                    using (SqlCommand command = new SqlCommand(categoryIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@productID", productID);
+                        categoryID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the saleID
+                    string saleIDQuery = "SELECT MAX(SaleID) FROM Sale;";
+                    int saleID;
+                    using (SqlCommand command = new SqlCommand(saleIDQuery, connection))
+                    {
+                        saleID = Convert.ToInt32(command.ExecuteScalar());
+                        saleID += 1;
+                    }
+
+                    // Get the dealID
+                    string dealIDQuery = "SELECT DealID FROM Deal WHERE EmpID=@empID AND ClientID=@clientID AND ProductID=@productID;";
+                    int dealID;
+                    using (SqlCommand command = new SqlCommand(dealIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@productID", productID);
+                        dealID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Insert into Sale table
+                    string query = "INSERT INTO Sale(SaleID, EmpID, SaleDate, ClientID, ProductID, CatagoryID, Alert, fk_DealID, SaleRevenue) VALUES (@saleID, @empID, @date, @clientID, @prodID, @categoryID, 0, @dealID, @revenue);";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@saleID", saleID);
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@date", date);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.Parameters.AddWithValue("@revenue", revenue);
+                        command.Parameters.AddWithValue("@categoryID", categoryID);
+                        command.Parameters.AddWithValue("@dealID", dealID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return sales;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return sales;
+        }
+
         public static List<note> GetNotes(int employeeID = 0, string searchTerm = "") // Specify the employeeID parameter to receive notes from a specific employee
         {
             List<note> notes = new List<note>();
