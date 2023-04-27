@@ -1240,7 +1240,7 @@ namespace JP.Shared
             return tasks;
         }
 
-        public static List<deal> GetDeals(string searchTerm)
+        public static List<deal> GetDeals(int empID, string searchTerm)
         {
             List<deal> deals = new List<deal>();
             try
@@ -1248,10 +1248,11 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT Deal.DealDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID FROM Deal INNER JOIN Client on Deal.ClientID = Client.ClientID INNER JOIN Employee on Deal.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Deal.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
+                    var query = "SELECT Deal.DealDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID FROM Deal INNER JOIN Client on Deal.ClientID = Client.ClientID INNER JOIN Employee on Deal.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Deal.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE Employee.EmpID=@empID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
+                        command.Parameters.AddWithValue("@empID", empID);
                         connection.Open();
                         using (SqlDataReader reader = command.ExecuteReader())
                         {

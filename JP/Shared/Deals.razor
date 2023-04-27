@@ -37,7 +37,7 @@
                 @{
                     string uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
                     string searchTerm = uri.Contains("=") ? NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Split("=")[1] : "";
-                    foreach (deal deal in database.GetDeals(searchTerm))
+                    foreach (deal deal in database.GetDeals(EmpID, searchTerm))
                     {
                         <tr>
                             <td>@deal.date.ToString("MM/dd/yyyy")</td>
@@ -116,7 +116,7 @@
 
     public int EmpID { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
         EmpID = await GetEmpID();
     }

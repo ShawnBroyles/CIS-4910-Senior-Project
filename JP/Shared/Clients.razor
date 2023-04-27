@@ -82,7 +82,7 @@
 
     public int EmpID { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         EmpID = await GetEmpID();
     }
