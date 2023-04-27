@@ -1274,6 +1274,57 @@ namespace JP.Shared
             return deals;
         }
 
+        public static List<deal> DeleteDeal(int empID, DateTime date, string clientfName, string clientlName, string productName)
+        {
+            List<deal> deals = new List<deal>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", clientfName);
+                        command.Parameters.AddWithValue("@lName", clientlName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", productName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Delete from Deal table
+                    var query = "DELETE FROM Deal WHERE EmpID=@empID AND DealDate=@date AND ClientID=@clientID AND ProductID=@prodID;";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@date", date);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return deals;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return deals;
+        }
+
         public static List<recommended> GetRecommendeds(string catname)
         {
             List<recommended> recommendeds = new List<recommended>();
