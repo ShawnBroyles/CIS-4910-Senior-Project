@@ -5,7 +5,7 @@
 <PageTitle>Admin</PageTitle>
 
 <main>
-    <button class="new-user mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%">New User</button>
+    <button class="new-user mx-auto" style="margin:auto; position:absolute; top: 100%; right: -11%" @onclick="@(() => ShowCreateAccountForm())">New User</button>
     <div class="content">
         <div class="header" style="left: -10%">
             <h1>Manage Users</h1>
@@ -26,177 +26,175 @@
                         <td>@acc.username</td>
                         <td>@acc.password</td>
                         <td>
-                            <button class="edit-user">Edit</button>
+                            <button class="edit-user" @onclick="@(() => ShowEditAccountForm(acc.id, acc.username, acc.password, acc.type))">Edit</button>
                         </td>
                         <td>
-                            <button class="delete-user">Delete</button>
+                            <button class="delete-user" @onclick="@(() => ConfirmDeleteAccount(acc.id))">Delete</button>
                         </td>
                     </tr>
                 }
             </table>
-            <div>
-                <button @onclick=Start disabled=@Running>Start Importing New Leads</button>
-                <button @onclick=Stop disabled=@Paused>Stop Importing New Leads</button>
-                <div style="display:none">@filePath</div>
-            </div>
+            <br />
+            <br />
+            <br />
+            <br />
+        <div class="header" style="left: -10%; display: none">
+            <h1>Inactive Leads</h1>
+        </div>
+            <table class="table table-sm" style="display: none">
+                <tr>
+                    <th style="width: 20%;">Company</th>
+                    <th style="width: 20%;">First Name</th>
+                    <th style="width: 20%;">Last Name</th>
+                    <th style="width: 30%;">Email</th>
+                    <th style="width: 15%;">Phone Number</th>
+                    <th style="width: 15%;">Category</th>
+                    <th style="width: 30%;">Recommended Products</th>
+                    <th style="width: 20%;">Reactivate</th>
+
+                </tr>
+                @{
+                    foreach (client inactiveLead in database.GetInactiveLeads())
+                    {
+                        <tr>
+                            <td>@inactiveLead.companyID</td>
+                            <td>@inactiveLead.firstName</td>
+                            <td>@inactiveLead.lastName</td>
+                            <td>@inactiveLead.email</td>
+                            <td>@inactiveLead.phoneNumber</td>
+                            <td>@inactiveLead.categoryID</td>
+                            <td>
+                                @foreach (RecommendedProduct prod in database2.GetRecommendeds(inactiveLead.categoryID, inactiveLead.companyemployees, inactiveLead.companyrevenue))
+                                {
+                                    @prod.productname <br />
+                                }
+                            </td>
+                            <td>
+                                <button class="reactivate-client" @onclick="@(() => database.ReactivateLead(inactiveLead.id))">Reactivate</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+            <br />
+            <br />
+            <br />
+            <br />
             <div>
                 <table>
                     <tr>
                         <th>Audit Log - Importing New Leads</th>
                     </tr>
-                    <!-- foreach(newLeadsAuditLog newLead in database.GetNewLeadAuditLog())
+                    @foreach(auditLogEntry newLead in database.GetAuditLogEntries())
                     {
                         <tr>
-                            <td>@newLead.date - @newLead.information</td>
+                            <td>@newLead.entry</td>
                         </tr>
-                    } -->
+                    }
                 </table>
+                <br />
+                <br />
             </div>
         </div>
     </div>
 </main>
 
-@code
+@if (showingConfirmDeleteAccount)
 {
-    private bool Running = false;
-    private bool Paused = true;
-    private System.Threading.ManualResetEvent Trigger = new System.Threading.ManualResetEvent(false);
-    private string filePath = System.IO.Directory.GetCurrentDirectory();
 
-    private async Task Start()
+    <ConfirmDeleteAccount 
+        OnNo="CancelDeleteAccount"
+        OnYes="ConfirmDeleteAccount" />
+
+}
+
+@if (showingEditAccountForm)
+{
+
+    <EditAccountForm
+        Account="editAccount"
+        OnCancel="CancelEditAccount"
+        OnSave="SaveEditAccount" />
+
+}
+
+@if (showingCreateAccountForm)
+{
+    <CreateAccountForm 
+        Account="newAccount"
+        OnCancel="CancelCreateAccount"
+        OnSave="SaveCreateAccount" />
+}
+
+@functions {
+
+    bool showingCreateAccountForm;
+    bool showingConfirmDeleteAccount;
+    bool showingEditAccountForm;
+    int accountID;
+    account editAccount;
+    account newAccount;
+
+    // CREATE ACCOUNT ---------------------------------------------------------------
+
+    private async Task ShowCreateAccountForm()
     {
-        Running = true;
-        Paused = false;
-
-        // Start automatically importing new leads into the system
-        await ImportNewLeads();
+        newAccount = new account(accountID, "", "", "");
+        showingCreateAccountForm = true;
     }
 
-    private async Task Stop()
+    void CancelCreateAccount()
     {
-        Running = false;
-        Paused = true;
+        showingCreateAccountForm = false;
     }
 
-    private async Task ImportNewLeads()
+    void SaveCreateAccount()
     {
-        // Download CSV file from Google Forms
-        string url = @"https://docs.google.com/spreadsheets/d/e/2PACX-1vSsR7-FkWD-Im63Yrm7wRp7u_OGmsU6p4aVJnvM6CzZrP0Hgp7oSVtc5FPj1KEf752jyaSxRrBFU140/pub?output=csv";
-        string saveFileName = "NewLeads.csv";
-        new System.Net.WebClient().DownloadFile(url, saveFileName);
-
-        // Determining the line to start reading from so we can avoid duplicate data
-        string fileLineNumber = "LineNumber.txt";
-
-        // Creating file if it does not exist
-        if (!File.Exists(fileLineNumber))
-        {
-            using (StreamWriter sw = File.AppendText(fileLineNumber))
-            {
-                sw.WriteLine('1');
-                sw.Close();
-            }
-        }
-
-        // Reading from the file
-        StreamReader sr = new StreamReader(fileLineNumber);
-        string line = sr.ReadLine();
-        int lineContinue = Convert.ToInt32(line);
-        sr.Close();
-
-
-        // Parsing the CSV file
-        using (Microsoft.VisualBasic.FileIO.TextFieldParser parser = new Microsoft.VisualBasic.FileIO.TextFieldParser("./" + saveFileName))
-        {
-            parser.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited;
-            parser.SetDelimiters(",");
-            // Read a line each time we iterate through this loop
-            while (!parser.EndOfData)
-            {
-                if ((int)parser.LineNumber > lineContinue)
-                {
-                    lineContinue = (int)parser.LineNumber;
-                    System.IO.File.WriteAllText(fileLineNumber, Convert.ToString(lineContinue));
-
-                    // Reading fields sequentially
-                    string[] fields = parser.ReadFields();
-                    int counter = 0;
-                    client lead = new client();
-                    company company = new company();
-                    int newLeads = 0;
-                    List<string> newLeadsInfo = new List<string>();
-                    try
-                    {
-                        foreach (string field in fields)
-                        {
-                            switch (counter)
-                            {
-                                // Determining which field we're reading from the row
-                                case 0:
-                                    lead.joinDate = Convert.ToDateTime(field);
-                                    break;
-                                case 1:
-                                    lead.firstName = Convert.ToString(field);
-                                    break;
-                                case 2:
-                                    lead.lastName = Convert.ToString(field);
-                                    break;
-                                case 3:
-                                    lead.email = Convert.ToString(field);
-                                    break;
-                                case 4:
-                                    lead.phoneNumber = Convert.ToInt32(field);
-                                    break;
-                                case 5:
-                                    company.name = Convert.ToString(field);
-                                    break;
-                                case 6:
-                                    company.revenue = Convert.ToInt32(field);
-                                    break;
-                                case 7:
-                                    company.employees = Convert.ToInt32(field);
-                                    break;
-                                case 8:
-                                    string categoryName = Convert.ToString(field);
-                                    // Using nested ternary statements to find the category ID for the lead's selection
-                                    company.categoryID = categoryName.IndexOf("Construction") != -1 ? 1 :
-                                    categoryName.IndexOf("Retail") != -1 ? 2 :
-                                    categoryName.IndexOf("Professional Services") != -1 ? 3 :
-                                    categoryName.IndexOf("Personal Services") != -1 ? 4 :
-                                    categoryName.IndexOf("Business to Business") != -1 ? 5 :
-                                    categoryName.IndexOf("Restaurants & Quick-Serve Restaurants") != -1 ? 6 :
-                                    categoryName.IndexOf("Other") != -1 ? 7 : 7;
-                                    // Insert lead and company into database after the last item
-                                    lead.employeeID = 6; // New Lead
-                                    int newCompanyID = database.CreateCompany(company);
-                                    database.CreateLead(lead, newCompanyID);
-                                    newLeadsInfo.Add($"{lead.firstName} {lead.lastName} represents \"{company.name}\". Company category = {categoryName}, revenue = {company.revenue}, number of employees = {company.revenue}");
-                                    newLeads++;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            counter++;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.ToString());
-                    }
-                    database.CreateAuditLogEntry("" + DateTime.Now.ToString() + " - " + newLeads.ToString() + " were added to the database.");
-                    foreach(string newLeadInfo in newLeadsInfo)
-                    {
-                        database.CreateAuditLogEntry("    + " + newLeadInfo);
-                    }
-                }
-            }
-        }
-
-        // Sleep for 1 hour
-        Thread.Sleep(3600000);
-
-        // Recursion
-        if (Running)
-            await ImportNewLeads();
+        database.CreateAccount(newAccount.username, newAccount.password, newAccount.type);
+        showingCreateAccountForm = false;
     }
+
+    // DELETE ACCOUNT ---------------------------------------------------------------
+
+    // Function to confirm account deletion
+    private async Task ConfirmDeleteAccount(int id)
+    {
+        // Confirm if they would like to delete account
+        accountID = id;
+        showingConfirmDeleteAccount = true;
+    }
+
+    void CancelDeleteAccount()
+    {
+        showingConfirmDeleteAccount = false;
+    }
+
+    void ConfirmDeleteAccount()
+    {
+        database.DeleteAccount(accountID);
+        showingConfirmDeleteAccount = false;
+    }
+
+    // EDIT ACCOUNT ---------------------------------------------------------------
+
+    // Function to show edit account form
+    void ShowEditAccountForm(int id, string username, string password, string accountType)
+    {
+        editAccount = new account(id, username, password, accountType);
+        showingEditAccountForm = true;
+    }
+
+    // Function to cancel account edit
+    void CancelEditAccount()
+    {
+        showingEditAccountForm = false;
+    }
+
+    // Function to save editted acccount
+    private async Task SaveEditAccount()
+    {
+        database.EditAccount(editAccount.id, editAccount.username, editAccount.password, editAccount.type);
+        showingEditAccountForm = false;
+    }
+
 }

@@ -39,6 +39,7 @@
 
     .dialog-body div {
         margin-bottom: 10px;
+        text-align: center;
     }
 
     .dialog-body label {
@@ -46,29 +47,6 @@
         font-weight: bold;
         color: #333;
     }
-
-    .dialog-body select,
-    .dialog-body input[type="text"],
-    .dialog-body textarea {
-        border: none;
-        background-color: #f2f2f2;
-        padding: 10px;
-        border-radius: 5px;
-        font-size: 16px;
-        width: 100%;
-    }
-
-        .dialog-body select:focus,
-        .dialog-body input[type="text"]:focus,
-        .dialog-body textarea:focus {
-            outline: none;
-            box-shadow: 0 0 5px #1E90FF;
-        }
-
-        .dialog-body select:invalid,
-        .dialog-body input:invalid {
-            box-shadow: none;
-        }
 
 .dialog-buttons {
     display: flex;

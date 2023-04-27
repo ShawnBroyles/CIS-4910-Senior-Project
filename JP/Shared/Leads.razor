@@ -23,14 +23,13 @@
             </div>
             <table class ="table table-sm table-bordered">
                 <tr>
-                    <th style="width: 20%;">Company</th>
-                    <th style="width: 20%;">First Name</th>
-                    <th style="width: 20%;">Last Name</th>
-                    <th style="width: 30%;">Email</th>
+                    <th style="width: 20%;">Lead Name</th>
                     <th style="width: 15%;">Phone Number</th>
-                    <th style="width: 15%;">Category</th>
-                    <th style="width: 30%;">Recommended Products</th>
-                    <th style="width: 10%;">Delete</th>
+                    <th style="width: 26%;">Email</th>
+                    <th style="width: 25%;">Company Information</th>
+                    <th style="width: 20%;">Category</th>
+                    <th style="width: 20%;">Recommended Products</th>
+                    <th style="width: 15%;">Remove</th>
                     <th style="width: 10%;">Add</th>
                     
                 </tr>
@@ -40,20 +39,19 @@
                     foreach (client lead in database.GetLeads(searchTerm))
                     {
                         <tr>
-                            <td>@lead.companyID</td>
-                            <td>@lead.firstName</td>
-                            <td>@lead.lastName</td>
+                            <td>@lead.firstName @lead.lastName</td>
+                            <td>@lead.phoneNumber.ToString("(###) ###-####")</td>
                             <td>@lead.email</td>
-                            <td>@lead.phoneNumber</td>
+                            <td>Name: @lead.companyID<br />Revenue: @lead.companyrevenue.ToString("C0")<br />Employees: @lead.companyemployees.ToString("N0")</td>
                             <td>@lead.categoryID</td>
                             <td>
-                                @foreach (recommended prod in database.GetRecommendeds(lead.categoryID))
+                                @foreach (RecommendedProduct prod in database2.GetRecommendeds(lead.categoryID, lead.companyemployees, lead.companyrevenue))
                                 {
                                     @prod.productname <br />
                                 }
                             </td>
                             <td>
-                                <button class="delete-lead" @onclick="@(() => CheckDeleteLead(lead.id))">Delete</button>
+                                <button class="remove-lead" @onclick="@(() => CheckRemoveLead(lead.id))">Remove</button>
                             </td>
                             <td>
                                 <button class="add-client" @onclick="@(() => ShowAddClientForm(lead.id))">Add</button>
@@ -69,12 +67,12 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JsRuntime;
 
-@if (showingConfirmDeleteLead)
+@if (showingConfirmRemoveLead)
 {
     
-    <ConfirmDeleteLead 
-        OnNo="CancelDeleteLead"
-        OnYes="DeleteLead"/>
+    <ConfirmRemoveLead 
+        OnNo="CancelRemoveLead"
+        OnYes="RemoveLead"/>
 
 }
 
@@ -87,32 +85,32 @@
 
 @functions {
 
-    bool showingConfirmDeleteLead;
+    bool showingConfirmRemoveLead;
     bool showingConfirmAddClientForm;
     int leadID;
     int addClientID;
 
-    // DELETE LEAD ---------------------------------------------------------------
+    // REMOVE LEAD ---------------------------------------------------------------
 
-    // Function to delete leads
-    private async Task CheckDeleteLead(int id)
+    // Function to remove leads
+    private async Task CheckRemoveLead(int id)
     {
-        // Check if they are authorized to delete lead (admin only)
+        // Check if they are authorized to remove lead (admin only)
 
-        // Confirm if they would like to delete lead
+        // Confirm if they would like to remove lead
         leadID = id;
-        showingConfirmDeleteLead = true;
+        showingConfirmRemoveLead = true;
     }
 
-    void CancelDeleteLead()
+    void CancelRemoveLead()
     {
-        showingConfirmDeleteLead = false;
+        showingConfirmRemoveLead = false;
     }
 
-    void DeleteLead()
+    void RemoveLead()
     {
         database.InactivateLead(leadID);
-        showingConfirmDeleteLead = false;
+        showingConfirmRemoveLead = false;
     }
 
     // ADD LEAD TO CLIENT LIST ---------------------------------------------------------------
@@ -138,7 +136,7 @@
         string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
         int userID = Convert.ToInt32(strUserID);
 
-        database.addClient(addClientID, userID);
+        database.addClient(addClientID, database.GetEmpIDFromAccID(userID));
         showingConfirmAddClientForm = false;
     }
 }
