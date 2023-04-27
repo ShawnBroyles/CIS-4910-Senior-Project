@@ -317,6 +317,40 @@ namespace JP.Shared
             return Tuple.Create(Regex.Match(input, "^[a-zA-Z0-9\\s\\n_.]+$").Success, input);
         }
 
+        public static int GetEmpID(int accountID)
+        {
+            int empID = 1;
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT EmpID FROM Employee WHERE AccountID=@accountID;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@accountID", accountID);
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                empID = reader.GetInt32(0);
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return empID;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return empID;
+        }
+
         public static account AttemptLogin(string username, string password)
         {
             List<account> accounts = GetAccounts();
@@ -852,7 +886,7 @@ namespace JP.Shared
                         {
                             while (reader.Read())
                             {
-                                // Deal Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID
+                                // Deal ID, Date, Company Name, Client First Name, Client Last Name, Employee First Name, Employee Last Name, Product Name, Category Name, Client ID
                                 deal = new deal(reader.GetDateTime(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetInt32(8));
                             }
                         }
@@ -1067,7 +1101,91 @@ namespace JP.Shared
             Console.ReadLine();
             return sales;
         }
-        
+
+        public static List<sale> CreateSale(int empID, DateTime date, string fName, string lName, string prodName, int revenue)
+        {
+            List<sale> sales = new List<sale>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", fName);
+                        command.Parameters.AddWithValue("@lName", lName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", prodName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the CategoryID
+                    string categoryIDQuery = "SELECT CatagoryID FROM Product WHERE ProductID=@productID;";
+                    int categoryID;
+                    using (SqlCommand command = new SqlCommand(categoryIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@productID", productID);
+                        categoryID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the saleID
+                    string saleIDQuery = "SELECT MAX(SaleID) FROM Sale;";
+                    int saleID;
+                    using (SqlCommand command = new SqlCommand(saleIDQuery, connection))
+                    {
+                        saleID = Convert.ToInt32(command.ExecuteScalar());
+                        saleID += 1;
+                    }
+
+                    // Get the dealID
+                    string dealIDQuery = "SELECT DealID FROM Deal WHERE EmpID=@empID AND ClientID=@clientID AND ProductID=@productID;";
+                    int dealID;
+                    using (SqlCommand command = new SqlCommand(dealIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@productID", productID);
+                        dealID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Insert into Sale table
+                    string query = "INSERT INTO Sale(SaleID, EmpID, SaleDate, ClientID, ProductID, CatagoryID, Alert, fk_DealID, SaleRevenue) VALUES (@saleID, @empID, @date, @clientID, @prodID, @categoryID, 0, @dealID, @revenue);";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@saleID", saleID);
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@date", date);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.Parameters.AddWithValue("@revenue", revenue);
+                        command.Parameters.AddWithValue("@categoryID", categoryID);
+                        command.Parameters.AddWithValue("@dealID", dealID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return sales;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return sales;
+        }
+
         public static List<note> GetNotes(int employeeID = 0, string searchTerm = "") // Specify the employeeID parameter to receive notes from a specific employee
         {
             List<note> notes = new List<note>();
@@ -1270,7 +1388,7 @@ namespace JP.Shared
             return tasks;
         }
 
-        public static List<deal> GetDeals()
+        public static List<deal> GetDeals(int empID, string searchTerm)
         {
             List<deal> deals = new List<deal>();
             try
@@ -1278,10 +1396,11 @@ namespace JP.Shared
                 var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT Deal.DealDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID FROM Deal INNER JOIN Client on Deal.ClientID = Client.ClientID INNER JOIN Employee on Deal.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Deal.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID;";
+                    var query = "SELECT Deal.DealDate, Company.CompanyName, Client.fName, Client.lName, Employee.fName, Employee.lName, Product.ProductName, Catagory.CatagoryName, Client.ClientID FROM Deal INNER JOIN Client on Deal.ClientID = Client.ClientID INNER JOIN Employee on Deal.EmpID = Employee.EmpID INNER JOIN Product on Product.ProductID = Deal.ProductID INNER JOIN Catagory on Catagory.CatagoryID = Client.CatagoryID INNER JOIN Company on Company.CompanyID = Client.CompanyID WHERE Employee.EmpID=@empID;";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
+                        command.Parameters.AddWithValue("@empID", empID);
                         connection.Open();
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
@@ -1304,7 +1423,203 @@ namespace JP.Shared
             return deals;
         }
 
-    
+        public static List<deal> CreateDeal(int empID, DateTime date, string fName, string lName, string prodName)
+        {
+            List<deal> deals = new List<deal>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", fName);
+                        command.Parameters.AddWithValue("@lName", lName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", prodName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Insert into Deal table
+                    string query = "INSERT INTO Deal(EmpID, DealDate, ClientID, ProductID) VALUES (@empID, @date, @clientID, @prodID);";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@date", date);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return deals;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return deals;
+        }
+
+        public static List<deal> EditDeal(int empID, DateTime newDate, DateTime oldDate, string fName, string lName, string prodName)
+        {
+            List<deal> deals = new List<deal>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", fName);
+                        command.Parameters.AddWithValue("@lName", lName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", prodName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the CategoryID
+                    string categoryIDQuery = "SELECT CatagoryID FROM Product WHERE ProductID=@productID;";
+                    int categoryID;
+                    using (SqlCommand command = new SqlCommand(categoryIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@productID", productID);
+                        categoryID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Insert into Deal table
+                    var query = "UPDATE Deal SET DealDate=@newDate, ClientID=@clientID, ProductID=@prodID, CatagoryID=@categoryID WHERE (DealDate=@oldDate AND EmpID=@empID);";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@newDate", newDate);
+                        command.Parameters.AddWithValue("@oldDate", oldDate);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.Parameters.AddWithValue("@categoryID", categoryID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return deals;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return deals;
+        }
+
+        public static List<deal> DeleteDeal(int empID, DateTime date, string clientfName, string clientlName, string productName)
+        {
+            List<deal> deals = new List<deal>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Get the ClientID
+                    string clientIDQuery = "SELECT ClientID FROM Client WHERE (fname=@fName AND lName=@lName);";
+                    int clientID;
+                    using (SqlCommand command = new SqlCommand(clientIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@fName", clientfName);
+                        command.Parameters.AddWithValue("@lName", clientlName);
+                        clientID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Get the ProductID
+                    string productIDQuery = "SELECT ProductID FROM Product WHERE ProductName=@prodName;";
+                    int productID;
+                    using (SqlCommand command = new SqlCommand(productIDQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@prodName", productName);
+                        productID = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    // Delete from Deal table
+                    var query = "DELETE FROM Deal WHERE EmpID=@empID AND DealDate=@date AND ClientID=@clientID AND ProductID=@prodID;";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@empID", empID);
+                        command.Parameters.AddWithValue("@date", date);
+                        command.Parameters.AddWithValue("@clientID", clientID);
+                        command.Parameters.AddWithValue("@prodID", productID);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return deals;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return deals;
+        }
+
+        public static List<recommended> GetRecommendeds(string catname)
+        {
+            List<recommended> recommendeds = new List<recommended>();
+            try
+            {
+                var connectionString = @"Server=tcp:jp-morgan.database.windows.net,1433;Initial Catalog=JP-Morgan;Persist Security Info=False;User ID=JPMorgan;Password=SeniorProject#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    var query = "SELECT product.ProductName FROM Product INNER JOIN sale ON Product.ProductID = sale.ProductID INNER JOIN client ON client.clientid = sale.clientid INNER JOIN Catagory ON Catagory.CatagoryID = Client.CatagoryID WHERE Catagory.CatagoryName LIKE @Category;";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        command.Parameters.AddWithValue("@Category", "%" + catname + "%");
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                recommendeds.Add(new recommended(reader.GetString(0)));
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return recommendeds;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            Console.ReadLine();
+            return recommendeds;
+        }
 
         public static List<leaddealsale> GetLeadDealSales()
         {

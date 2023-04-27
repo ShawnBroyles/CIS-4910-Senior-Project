@@ -1,4 +1,4 @@
-﻿@using JP.Shared
+@using JP.Shared
 @using Microsoft.JSInterop
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
@@ -80,7 +80,7 @@
 
     public int EmpID { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         EmpID = await GetEmpID();
     }
@@ -90,7 +90,8 @@
     {
         string strUserID = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieLoggedInUserID");
         int userID = Convert.ToInt32(strUserID);
-        return database.GetEmpIDFromAccID(userID);
+        userID = database.GetEmpID(userID);
+        return userID;
     }
 
     // REMOVE CLIENT ---------------------------------------------------------------
