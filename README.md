@@ -44,4 +44,6 @@ Madhavi Othuluru
 
 Jeff Doromal
 
+- VP of Software Engineering
+
 - J.P. Morgan Chase
